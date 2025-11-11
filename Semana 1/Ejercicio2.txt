@@ -1,0 +1,71 @@
+Cree un algoritmo que describa su rutina diaria. Use condiciones, condiciones multiples y ciclos 
+
+1. Inicio. 
+
+2. Despertarme a las 6am. 
+
+3. Dar buenos días a mi esposa. 
+
+4. Si mi hijo de 1 año sigue dormido, ir a la cocina. 
+
+5. Sino: 
+Dar los buenos días a mi hijo e ir a la cocina mientras mi esposa baña a mi hijo. 
+
+6. Preparar el desayuno para mi hijo y mi esposa. 
+
+7. Pasear a Ginny la perrita de la casa. 
+
+8. Ayudar a terminar de vestir a mi hijo. 
+
+9. Desayunar con la familia. 
+
+10. Llevar a mi hijo donde la abuela a que lo cuiden durante el día. 
+
+11. Conectarme al trabajo. 
+
+12. Si es lunes o miércoles prepararme para la reunión de equipo reunión del equipo trabajo. 
+
+13. Sino: 
+Revisar mis tiquetes abiertos. 
+
+14. Si tengo pendientes del día anterior y no hay un tiquete urgente de cliente continuar trabajando en los casos del día anterior. 
+
+15. Sino, atender el tiquete urgente. 
+
+ a. Revisar la documentación del tiquete. 
+
+ b. Si hay documentación suficiente y tiene criterios de aceptación de reportes entonces empezar trabajar en el caso. 
+
+ c. Sino, contactar al cliente para solicitar más información. 
+
+16. Mientras no sean las 1 pm seguir trabajando en las tareas diarias. 
+
+ a. Revisar correo. 
+
+ b. Atender chat o llamadas de teams. 
+
+ c. Preparar queries de SQL o reportes de Power BI. 
+
+17. Tomar hora de almuerzo. 
+
+18. Mientras no sean las 5pm seguir trabajando en las tareas diarias. 
+
+ a. Revisar correo. 
+
+ b. Atender chat o llamadas de teams. 
+
+ c. Finalizar queries de SQL o ajustes a reportes. 
+
+ d. Probar desarrollo hecho en la mañana. 
+
+19. Recibir a mi hijo y jugar con él. 
+
+20. Dormir a mi hijo a las 7pm. 
+
+21. Estudiar curso de Lyfter. 
+
+22. Ir a dormir. 
+
+23. Fin. 
+
+ 

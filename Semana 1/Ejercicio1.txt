@@ -1,0 +1,46 @@
+Cree un algoritmo para ver un video en Youtube. Sea lo más especifico posible. 
+1. Inicio. 
+
+2. Elegir dispositivo donde dese ver video de YouTube 
+
+ a. Si desea ver el video en computadora 
+
+  i. Encender la computadora. 
+
+  ii. Ingresar clave de inicio de computadora. 
+
+  iii. Esperar que programas de inicio carguen. 
+
+  iv. Abrir browser deseado y digitar youtube.com 
+
+  v. Dar click en la barra de búsqueda de YouTube. 
+
+ b. Sino: 
+ Si desea ver el video en smartphone, o si desea ver en Tablet o Smart TV. 
+
+  i. Ingresar al dispositivo con el botón de encendido. 
+
+  ii. Si tiene la app de YouTube. Ingresar a la app. 
+
+  iii. Sino: 
+  Tiene la app de YouTube. 
+
+   1. Si tiene un dispositivo Android ir a Google Play y buscar YouTube. 
+
+   2. Sino, y tiene un dispositivo Apple, ir a App Store y buscar la app de YouTube. 
+
+   3. Instalar la app y abrirla. 
+
+   4. Presionar el botón de búsqueda en la app YouTube 
+
+  c. Escriba con el teclado del dispositivo usado el nombre o referencia del video que desea ver. 
+
+  d. Mientras no encuentre el video buscado. 
+
+   i. Corrija el texto buscado en la barra de búsqueda de YouTube. 
+
+   ii. Dar enter o click en el botón de buscar y ver resultados. 
+
+ e. Ver video elegido en YouTube. 
+
+3. Fin. 

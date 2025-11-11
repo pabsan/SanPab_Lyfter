@@ -1,0 +1,102 @@
+3. Cree un algoritmo que le pida un numero al usuario, y realice una suma de cada numero del 1 hasta ese número ingresado. Luego muestre el resultado de la suma.
+    1. 5 → 15 (1 + 2 + 3 + 4 + 5)
+    2. 3 → 6 (1 + 2 + 3)
+    3. 12 → 78 (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12)
+    
+    Respuesta:
+    
+    1. Inicio
+    2. Definir `numero`
+    3. Definir `total`
+    4. Definir `contador`
+    5. Mostrar “Digite un Numero”
+    6. Pedir `numero`
+    7. `total` = 0
+    8. `contador` = 1
+    9. Mientras que (`contador` <= `numero`) hacer:
+        1. `total` = `total` + `contador`
+        2. `contador` = `contador` + 1
+    10. FinMientras
+    11. Mostrar "Resultado total es de "
+    12. Mostrar `total`
+    13. Fin
+    
+    Ejercicios Extra:
+    
+    1. Cree un algoritmo que le pida 2 números al usuario, los guarde en dos variables distintas (`primero` y `segundo`) y los ordene de menor a mayor en dichas variables.
+        1. Ejemplos:
+            1. A: 56, B: 32 → A: 32, B: 56
+            2. A: 24, B: 76 → A: 24, B: 76
+            3. A: 45, B: 12 → A: 12, B: 45
+    
+    Respuesta:
+    
+    1. Inicio
+    2. Definir `primero`
+    3. Definir `segundo`
+    4. Definir `auxiliar`
+    5. Si (`primero` > `segundo`) entonces
+        1. `auxiliar = primero`
+        2. `primero = segundo`
+        3. `segundo = auxiliar`
+    6. FinSi
+    7. Mostrar “Variables/Numeros ordenados de menor a mayor: “
+    8. Mostrar `primero`
+    9. Mostrar `segundo`
+    10. Fin
+    
+    1. Cree un algoritmo que le pida al usuario una velocidad en km/h y la convierta a m/s. Recuerda que `1 km == 1000m` y `1 hora == 60 minutos * 60 segundos`.
+    
+    *Ejemplos*:
+    
+    1. 73 → 20.27
+    2. 50 → 13.88
+    3. 120 → 33.33
+    
+    Respuesta:
+    
+    1. Inicio
+    2. Definir `km_h`
+    3. Definir `m_s`
+    4. Mostrar "Digite la cantidad km/h"
+    5. Pedir `km_h`
+    6. `m_s = (km_h * 1000) / 3600`
+    7. Mostrar "Resultado a m/s"
+    8. Mostrar `m_s`
+    9. Fin
+    
+    1. Cree un algoritmo que le pregunte al usuario por el sexo de 6 personas, ingresando 1 si es mujer o 2 si es hombre, y muestre al final el porcentaje de mujeres y hombres.
+        1. *Ejemplos*:
+            1. 1, 1, 1, 2, 2, 2 → 50% mujeres y 50% hombres
+            2. 1, 1, 2, 2, 2, 2 → 33.3% mujeres y 66.6% hombres
+            3. 1, 1, 1, 1, 1, 2 → 83.3% mujeres y 16.6% hombres
+        
+        Respuesta:
+        
+        1. Inicio
+        2. Definir `sexo`
+        3. Definir `contador_mujeres`
+        4. Definir `contador_hombres`
+        5. Definir `porc_mujeres`
+        6. Definir `porc_hombres`
+        7. Definir `contador`
+        8. `contador = 1`
+        9. `contador_mujeres = 0`
+        10. `contador_hombres = 0`
+        11. Mientras (`contador <= 6`) hacer
+            1. Mostrar "Digite el sexo de la persona (1 = mujeres y 2 = hombres)"
+            2. Pedir `sexo`
+            3. Si (`sexo == 1`) entonces
+                1. `contador_mujeres = contador_mujeres + 1`
+            4. Sino
+                1. `contador_hombres = contador_hombres + 1`
+            5. FinSi
+            6. `contador = contador + 1`
+        12. FinMientras
+        13. `porc_mujeres = (contador_mujeres / 6) * 100`
+        14. `porc_hombres = (contador_hombres / 6) * 100`
+        15. Mostrar "Porcentaje de mujeres es de "
+        16. Mostrar `porc_mujeres`
+        17. Mostrar "Porcentaje de hombres es de "
+        18. Mostrar `porc_hombres`
+        19. Fin

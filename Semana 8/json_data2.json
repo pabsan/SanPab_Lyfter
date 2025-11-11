@@ -1,0 +1,16 @@
+{
+    "name": "Austin",
+    "subscriber count": 850,
+    "is YouTuber": "true",
+    "friends": [
+        "John",
+        "Sam",
+        "Matthew"
+    ],
+    "physical attributes": {
+        "height": 6,
+        "weight": 200,
+        "eyes": "brown",
+        "is male": "true"
+    }
+}
