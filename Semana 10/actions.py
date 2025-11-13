@@ -27,8 +27,21 @@ def enter_grade(assigment):
         print(f"Error on the grade. Error: {e}")
         enter_grade(assigment)
 
+def add_new_student(name, section, spanish_grade, english_grade, socials_grade, sciense_grade):
+    avg = (spanish_grade + english_grade + socials_grade + sciense_grade) / 4
+    new_student_dict = {
+        "name": name,
+        "section": section,
+        "spanish_grade": spanish_grade,
+        "english_grade": english_grade,
+        "socials_grade": socials_grade,
+        "sciense_grade": sciense_grade,
+        "average_grade": avg
+    }
+    return new_student_dict
 
-def enter_students_information():
+
+def enter_students_information(students):
     print("=== Enter Student Information Option ===")
     want_continue = True
     try:
@@ -39,9 +52,27 @@ def enter_students_information():
             english = enter_grade("English")
             socials = enter_grade("Socials")
             sciense = enter_grade("Science")
+
+            #add data in the dictionary and then into a list of students
+            new_student = add_new_student(name, section,spanish, english, socials, sciense)
+            students.append(new_student)
             want_continue = call_continue_ask()
             print("==============================")
             
-        return name
+        return students
     except ValueError as e:
         print(f"Invalid grade enter, it must be an integer number. {e}")
+
+
+def check_students_information(students):
+    try:
+        if len(students) > 0:
+            print("=== Check Student Information Option ===")
+            for student in students:
+                print(f"-> Name: {student['name']} | Section: {student['section']} | Spanish: {student['spanish_grade']} | English: {student['english_grade']} | Socials: {student['socials_grade']} | Sciense: {student['sciense_grade']} | Average: {student['average_grade']}")
+            print("=======================================")
+        else:
+            print("No students added!")
+        input("Press any key to exit")
+    except IndexError as e:
+        print(f"Found an error in the list of students. Error: {e}")

@@ -1,5 +1,6 @@
 import os
-import actions
+import actions as a
+import time
 
 def clear_screen():
     os.system('cls')
@@ -23,12 +24,18 @@ def draw_main_menu():
     return menu_options
 
 
-def call_enter_information():
+def call_enter_information(list_students):
     clear_screen()
-    actions.enter_students_information()
+    a.enter_students_information(list_students)
+    print(f"Processing new students... There are {len(list_students)} students. Please wait!")
+    time.sleep(2)
 
 
-def choose_option():
+def call_check_information(list_students):
+    clear_screen()
+    a.check_students_information(list_students)
+
+def start_program(list_students):
     try:
         isOn = True
         while isOn:
@@ -36,7 +43,9 @@ def choose_option():
             choice = int(input("Enter your choice: "))
             if choice in options:
                 if choice == 1:
-                    call_enter_information()
+                    call_enter_information(list_students)
+                elif choice == 2:
+                    call_check_information(list_students)
                 elif choice == 0:
                     print("Goodbye!")
                     isOn = False

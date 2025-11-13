@@ -1,4 +1,5 @@
 import menu
 
 if __name__ == "__main__":
-    menu.choose_option()
+    all_students = []
+    menu.start_program(all_students)
