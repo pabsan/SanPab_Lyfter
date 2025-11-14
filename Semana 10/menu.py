@@ -35,6 +35,16 @@ def call_check_information(list_students):
     clear_screen()
     a.check_students_information(list_students)
 
+
+def call_top_3_best_avg(list_students):
+    clear_screen()
+    a.print_top_3_students(list_students)
+
+def call_all_avg(list_students):
+    clear_screen()
+    a.calculate_all_avg(list_students)
+
+
 def start_program(list_students):
     try:
         isOn = True
@@ -46,6 +56,10 @@ def start_program(list_students):
                     call_enter_information(list_students)
                 elif choice == 2:
                     call_check_information(list_students)
+                elif choice == 3:
+                    call_top_3_best_avg(list_students)
+                elif choice == 4:
+                    call_all_avg(list_students)
                 elif choice == 0:
                     print("Goodbye!")
                     isOn = False
