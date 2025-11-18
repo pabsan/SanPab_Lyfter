@@ -1,6 +1,7 @@
 import os
 import actions as a
 import time
+import data as d
 
 def clear_screen():
     os.system('cls')
@@ -40,9 +41,21 @@ def call_top_3_best_avg(list_students):
     clear_screen()
     a.print_top_3_students(list_students)
 
+
 def call_all_avg(list_students):
     clear_screen()
     a.calculate_all_avg(list_students)
+
+
+def call_export_to_json(list_students):
+    clear_screen()
+    d.export_to_json(list_students)
+
+
+def call_import_from_json():
+    clear_screen()
+    filename = input("Enter the filename to import from (with .json extension): ")
+    return d.import_from_json(filename)
 
 
 def start_program(list_students):
@@ -60,6 +73,12 @@ def start_program(list_students):
                     call_top_3_best_avg(list_students)
                 elif choice == 4:
                     call_all_avg(list_students)
+                elif choice == 5:
+                    call_export_to_json(list_students)
+                elif choice == 6:
+                    imported_students = call_import_from_json()
+                    if imported_students:
+                        list_students.extend(imported_students)
                 elif choice == 0:
                     print("Goodbye!")
                     isOn = False

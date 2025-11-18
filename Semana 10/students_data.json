@@ -1,0 +1,20 @@
+[
+    {
+        "name": "pablo",
+        "section": "jj",
+        "spanish_grade": 90,
+        "english_grade": 78,
+        "socials_grade": 88,
+        "sciense_grade": 88,
+        "average_grade": 86.0
+    },
+    {
+        "name": "leo",
+        "section": "pp",
+        "spanish_grade": 90,
+        "english_grade": 78,
+        "socials_grade": 99,
+        "sciense_grade": 33,
+        "average_grade": 75.0
+    }
+]
