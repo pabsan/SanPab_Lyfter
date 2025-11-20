@@ -91,7 +91,7 @@ def get_top_3_best_avg(students):
                 best_avg = -1
                 i = 1
                 for student in students:
-                    if student['average_grade'] > best_avg and (i - 1) not in top3_idexes:
+                    if float(student['average_grade']) > float(best_avg) and (i - 1) not in top3_idexes:
                         best_avg = student['average_grade']
                         best_student_index = i - 1
                     i += 1
@@ -103,6 +103,9 @@ def get_top_3_best_avg(students):
         return top3
     except IndexError as e:
         print(f"Found an error in the list of students. Error: {e}")
+        input("Press any key to exit")
+    except TypeError as e:
+        print(f"Found an error in the type of data stored. Error: {e}")
         input("Press any key to exit")
 
 
@@ -132,3 +135,34 @@ def calculate_all_avg(students):
         input("Press any key to exit")
     except IndexError as e:
         print(f"Found an error in the list of students. Error: {e}")
+
+
+def is_delete_student_ok(students, name_search, section_search):
+    try:
+        student_found = False
+        i = 0
+        for s in students:
+            if s.get('name').lower() == name_search.lower() and s.get('section').lower() == section_search.lower():
+                answer = input(f"Are you sure you want to delete student {name_search} from section {section_search}? (Y/N) ")
+                if answer.lower() in {'y','yes'}:
+                    student_found = True
+                    students.pop(i)
+                break
+            i += 1
+        return student_found
+    except IndexError as e:
+        print(f"Found an error in the list of students. Error: {e}")
+        return False
+    
+def delete_student(students):
+    print("=== Delete Student Option ===")
+    if len(students) > 0:
+        name_search = input("Type the student name to delete: ")
+        section_search = input("Type the student section to delete (ex: 11B, 7C, 9A, etc): ")
+        if is_delete_student_ok(students, name_search, section_search):
+            print("Student deleted successfully.")
+        else:
+            print("Student not found. Cannot delete.")
+    else:
+        print("No students added!")
+    input("Press enter key to exit")

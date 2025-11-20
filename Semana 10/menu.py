@@ -14,6 +14,7 @@ def draw_main_menu():
         4:'Check All Avg',
         5:'Export to CSV',
         6:'Import from CSV',
+        7:'Delete Student',
         0:'Exit'
     }
     
@@ -64,6 +65,11 @@ def call_import_from_csv():
         return []
 
 
+def call_delete_student(list_students):
+    clear_screen()
+    a.delete_student(list_students)
+
+
 def start_program(list_students):
     try:
         isOn = True
@@ -85,6 +91,8 @@ def start_program(list_students):
                     imported_students = call_import_from_csv()
                     if imported_students:
                         list_students.extend(imported_students)
+                elif choice == 7:
+                    call_delete_student(list_students)
                 elif choice == 0:
                     print("Goodbye!")
                     isOn = False
