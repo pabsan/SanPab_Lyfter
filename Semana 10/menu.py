@@ -47,15 +47,21 @@ def call_all_avg(list_students):
     a.calculate_all_avg(list_students)
 
 
-def call_export_to_json(list_students):
+def call_export_to_csv(list_students):
     clear_screen()
-    d.export_to_json(list_students)
+    d.export_to_csv(list_students)
 
 
-def call_import_from_json():
+def call_import_from_csv():
     clear_screen()
-    filename = input("Enter the filename to import from (with .json extension): ")
-    return d.import_from_json(filename)
+    if d.check_file_exists():
+        print("File 'students_data.csv' found. Proceeding to import.")
+        filename = 'students_data.csv'
+        return d.import_from_csv(filename)
+    else:
+        print("File 'students_data.csv' not found. Cannot import data.")
+        input("Press enter key to exit")
+        return []
 
 
 def start_program(list_students):
@@ -74,9 +80,9 @@ def start_program(list_students):
                 elif choice == 4:
                     call_all_avg(list_students)
                 elif choice == 5:
-                    call_export_to_json(list_students)
+                    call_export_to_csv(list_students)
                 elif choice == 6:
-                    imported_students = call_import_from_json()
+                    imported_students = call_import_from_csv()
                     if imported_students:
                         list_students.extend(imported_students)
                 elif choice == 0:
