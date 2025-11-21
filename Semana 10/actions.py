@@ -2,10 +2,10 @@ class InvalidGradeError(Exception):
     def __init__(self):
         super().__init__('Invalid Grade. The grade must be an integer number between 0-100.')
 
-def call_continue_ask():
+def call_confirmation_ask(msg):
     flag_continue = True
     while flag_continue == True:
-        want_continue = input("Include another student? (Y/N) ")
+        want_continue = input(msg)
         if want_continue.lower() in {'n','no'}:
             return False
         elif want_continue.lower() in {'y','yes'}:
@@ -57,7 +57,7 @@ def enter_students_information(students):
             #add data in the dictionary and then into a list of students
             new_student = add_new_student(name, section,spanish, english, socials, sciense)
             students.append(new_student)
-            want_continue = call_continue_ask()
+            want_continue = call_confirmation_ask('Do you want to add another student? (Y/N) ')
             print("==============================")
             
         return students
@@ -137,32 +137,76 @@ def calculate_all_avg(students):
         print(f"Found an error in the list of students. Error: {e}")
 
 
-def is_delete_student_ok(students, name_search, section_search):
+def delete_student_index(students, name_search, section_search):
     try:
-        student_found = False
         i = 0
         for s in students:
             if s.get('name').lower() == name_search.lower() and s.get('section').lower() == section_search.lower():
-                answer = input(f"Are you sure you want to delete student {name_search} from section {section_search}? (Y/N) ")
-                if answer.lower() in {'y','yes'}:
-                    student_found = True
-                    students.pop(i)
-                break
+                return i
             i += 1
-        return student_found
+        return -1
     except IndexError as e:
         print(f"Found an error in the list of students. Error: {e}")
-        return False
+        return -1
     
 def delete_student(students):
     print("=== Delete Student Option ===")
     if len(students) > 0:
         name_search = input("Type the student name to delete: ")
         section_search = input("Type the student section to delete (ex: 11B, 7C, 9A, etc): ")
-        if is_delete_student_ok(students, name_search, section_search):
-            print("Student deleted successfully.")
+        index_to_delete = delete_student_index(students, name_search, section_search)
+        if index_to_delete != -1:
+            ok_delete = call_confirmation_ask(f"Are you sure you want to delete student {name_search} from section {section_search}? (Y/N) ")
+            if ok_delete:
+                students.pop(index_to_delete)
+                print("Student deleted successfully.")
+            else:
+                print("Deletion cancelled.")
         else:
             print("Student not found. Cannot delete.")
     else:
         print("No students added!")
     input("Press enter key to exit")
+
+
+def check_grade_failure(record):
+    try:
+        list_assigments = []
+        if int(record.get('spanish_grade')) < 60:
+            list_assigments.append({'spanish_grade': record.get('spanish_grade')})
+        if int(record.get('english_grade')) < 60:
+            list_assigments.append({'english_grade': record.get('english_grade')})
+        if int(record.get('socials_grade')) < 60:
+            list_assigments.append({'socials_grade': record.get('socials_grade')})
+        if int(record.get('sciense_grade')) < 60:
+            list_assigments.append({'sciense_grade': record.get('sciense_grade')})
+        return list_assigments
+    except ValueError as e:
+        print(f"Error checking grade failure. {e}")
+        return []
+
+
+def list_failed_grades(students):
+    failed_students= []
+    for student in students:
+        failed_assigments = check_grade_failure(student)
+        if len(failed_assigments) > 0:
+            temp_dict = {'student': student, 'failed_assigments': failed_assigments}
+            failed_students.append(temp_dict)
+    return failed_students
+
+def print_failed_grades(students):
+    print("=== Students with Failed Grades ===")
+    failed_students = list_failed_grades(students)
+    if len(failed_students) > 0:
+        for record in failed_students:
+            student = record.get('student')
+            failed_assigments = record.get('failed_assigments')
+            print(f"Student Name: {student.get('name')} | Section: {student.get('section')}")
+            for assigment in failed_assigments:
+                for key, value in assigment.items():
+                    print(f"   - {key.replace('_grade','').capitalize()} Grade: {value}")   
+        print("==================================")
+    else:
+        print("No students with failed grades.")
+    input("Press any key to exit")

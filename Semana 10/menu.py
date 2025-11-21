@@ -15,6 +15,7 @@ def draw_main_menu():
         5:'Export to CSV',
         6:'Import from CSV',
         7:'Delete Student',
+        8:'Failed Grades Report',
         0:'Exit'
     }
     
@@ -51,6 +52,11 @@ def call_all_avg(list_students):
 def call_export_to_csv(list_students):
     clear_screen()
     d.export_to_csv(list_students)
+
+
+def call_failed_grades_report(list_students):
+    clear_screen()
+    a.print_failed_grades(list_students)
 
 
 def call_import_from_csv():
@@ -93,6 +99,8 @@ def start_program(list_students):
                         list_students.extend(imported_students)
                 elif choice == 7:
                     call_delete_student(list_students)
+                elif choice == 8:
+                    call_failed_grades_report(list_students)
                 elif choice == 0:
                     print("Goodbye!")
                     isOn = False
