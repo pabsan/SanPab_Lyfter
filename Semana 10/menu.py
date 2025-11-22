@@ -14,6 +14,8 @@ def draw_main_menu():
         4:'Check All Avg',
         5:'Export to CSV',
         6:'Import from CSV',
+        7:'Delete Student',
+        8:'Failed Grades Report',
         0:'Exit'
     }
     
@@ -28,8 +30,8 @@ def draw_main_menu():
 def call_enter_information(list_students):
     clear_screen()
     a.enter_students_information(list_students)
-    print(f"Processing new students... There are {len(list_students)} students. Please wait!")
-    time.sleep(2)
+    print(f"Processing new students... Total of {len(list_students)} student(s) added.")
+    input("Press enter key to exit")
 
 
 def call_check_information(list_students):
@@ -52,16 +54,26 @@ def call_export_to_csv(list_students):
     d.export_to_csv(list_students)
 
 
-def call_import_from_csv():
+def call_failed_grades_report(list_students):
+    clear_screen()
+    a.print_failed_grades(list_students)
+
+
+def call_import_from_csv(list_students):
     clear_screen()
     if d.check_file_exists():
         print("File 'students_data.csv' found. Proceeding to import.")
         filename = 'students_data.csv'
-        return d.import_from_csv(filename)
+        return d.import_from_csv(filename, list_students)
     else:
         print("File 'students_data.csv' not found. Cannot import data.")
         input("Press enter key to exit")
         return []
+
+
+def call_delete_student(list_students):
+    clear_screen()
+    a.delete_student(list_students)
 
 
 def start_program(list_students):
@@ -82,9 +94,13 @@ def start_program(list_students):
                 elif choice == 5:
                     call_export_to_csv(list_students)
                 elif choice == 6:
-                    imported_students = call_import_from_csv()
+                    imported_students = call_import_from_csv(list_students)
                     if imported_students:
                         list_students.extend(imported_students)
+                elif choice == 7:
+                    call_delete_student(list_students)
+                elif choice == 8:
+                    call_failed_grades_report(list_students)
                 elif choice == 0:
                     print("Goodbye!")
                     isOn = False
