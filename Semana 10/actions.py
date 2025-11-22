@@ -1,6 +1,45 @@
+import re
+
 class InvalidGradeError(Exception):
     def __init__(self):
         super().__init__('Invalid Grade. The grade must be an integer number between 0-100.')
+
+def is_valid_name(name):
+    if len(name) == 0 or bool(re.search(r'\d',name)):
+        return False
+    return True
+
+
+def is_valid_section(section):
+    if len(section) < 2 or len(section) > 4 or not section[:-1].isdigit() or not section[-1].isalpha():
+        return False
+    return True
+
+
+def enter_student_name():
+    name = input("Type the student name: ")
+    if is_valid_name(name):
+        return name
+    else:
+        print("Invalid name. The name must not be empty or contain numbers.")
+        return enter_student_name()
+
+
+def enter_student_section():
+    section = input("Type student section (ex: 11B, 7C, 9A, etc): ")
+    if is_valid_section(section):
+        return section
+    else:
+        print("Invalid section. The section must be at least 2 characters, less than 5, start with numbers and have a letter at the end.")
+        return enter_student_section()
+
+
+def student_exists(students, name, section):
+    for s in students:
+        if s.get('name').lower() == name.lower() and s.get('section').lower() == section.lower():
+            return True
+    return False
+
 
 def call_confirmation_ask(msg):
     flag_continue = True
@@ -47,16 +86,19 @@ def enter_students_information(students):
     want_continue = True
     try:
         while want_continue:
-            name = input("Type the student name: ")
-            section = input("Type student section (ex: 11B, 7C, 9A, etc): ")
+            name = enter_student_name()
+            section = enter_student_section()
             spanish = enter_grade("Spanish")
             english = enter_grade("English")
             socials = enter_grade("Socials")
             sciense = enter_grade("Science")
 
-            #add data in the dictionary and then into a list of students
-            new_student = add_new_student(name, section,spanish, english, socials, sciense)
-            students.append(new_student)
+            if student_exists(students,name,section):
+                print(f"Student {name} in section {section} already exists. Cannot add duplicates.")
+            else:
+                #add data in the dictionary and then into a list of students
+                new_student = add_new_student(name, section,spanish, english, socials, sciense)
+                students.append(new_student)
             want_continue = call_confirmation_ask('Do you want to add another student? (Y/N) ')
             print("==============================")
             
@@ -77,6 +119,7 @@ def check_students_information(students):
         input("Press any key to exit")
     except IndexError as e:
         print(f"Found an error in the list of students. Error: {e}")
+        
 
 def get_top_3_best_avg(students):
     try:
@@ -183,7 +226,7 @@ def check_grade_failure(record):
         return list_assigments
     except ValueError as e:
         print(f"Error checking grade failure. {e}")
-        return []
+        return [] 
 
 
 def list_failed_grades(students):
@@ -194,6 +237,7 @@ def list_failed_grades(students):
             temp_dict = {'student': student, 'failed_assigments': failed_assigments}
             failed_students.append(temp_dict)
     return failed_students
+
 
 def print_failed_grades(students):
     print("=== Students with Failed Grades ===")

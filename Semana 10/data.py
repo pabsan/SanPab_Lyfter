@@ -1,5 +1,6 @@
 import csv
 from pathlib import Path
+import actions as a
 
 def export_to_csv(students):
     try:
@@ -24,14 +25,23 @@ def export_to_csv(students):
         input("Press enter key to exit")
 
 
-def import_from_csv(filename):
+def import_from_csv(filename, students):
     try:
         data_dict = []
+        added = 0
+        dups = 0
         with open(filename, 'r', newline='') as file:
             reader = csv.DictReader(file)
             for row in reader:
-                data_dict.append(row)
-
+                name = row.get('name')
+                section = row.get('section')
+                if a.student_exists(students, name, section):
+                    dups += 1
+                    print(f"-- Duplicate student found in CSV: {name} in section {section}. Skipping entry. --")
+                else:
+                    added += 1
+                    data_dict.append(row)
+        print(f"Import completed. {added} students added, {dups} duplicates skipped.")
         input("Press enter key to exit")
         return data_dict
     except FileNotFoundError as e:

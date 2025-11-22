@@ -30,8 +30,8 @@ def draw_main_menu():
 def call_enter_information(list_students):
     clear_screen()
     a.enter_students_information(list_students)
-    print(f"Processing new students... There are {len(list_students)} students. Please wait!")
-    time.sleep(2)
+    print(f"Processing new students... Total of {len(list_students)} student(s) added.")
+    input("Press enter key to exit")
 
 
 def call_check_information(list_students):
@@ -59,12 +59,12 @@ def call_failed_grades_report(list_students):
     a.print_failed_grades(list_students)
 
 
-def call_import_from_csv():
+def call_import_from_csv(list_students):
     clear_screen()
     if d.check_file_exists():
         print("File 'students_data.csv' found. Proceeding to import.")
         filename = 'students_data.csv'
-        return d.import_from_csv(filename)
+        return d.import_from_csv(filename, list_students)
     else:
         print("File 'students_data.csv' not found. Cannot import data.")
         input("Press enter key to exit")
@@ -94,7 +94,7 @@ def start_program(list_students):
                 elif choice == 5:
                     call_export_to_csv(list_students)
                 elif choice == 6:
-                    imported_students = call_import_from_csv()
+                    imported_students = call_import_from_csv(list_students)
                     if imported_students:
                         list_students.extend(imported_students)
                 elif choice == 7:
