@@ -1,6 +1,11 @@
 import menu
 
-if __name__ == "__main__":
+def initialize_program():
     all_students = []
     menu.start_program(all_students)
+
+
+if __name__ == "__main__":
+    initialize_program()
+    
     
