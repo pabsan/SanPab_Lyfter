@@ -167,9 +167,9 @@ def calculate_all_avg(students):
     try:
         print("=== Average of averages Students Option ===")
         if len(students) > 0:
-            total_avg = 0
+            total_avg = 0.0
             for student in students:
-                total_avg += student['average_grade']
+                total_avg += float(student['average_grade'])
             overall_avg = total_avg / len(students)
             print(f"The overall average grade of all students is: {overall_avg:.2f}")
         else:
@@ -178,6 +178,8 @@ def calculate_all_avg(students):
         input("Press any key to exit")
     except IndexError as e:
         print(f"Found an error in the list of students. Error: {e}")
+    except ValueError as e:
+        print(f"Found an error in the type of data stored. Error: {e}")
 
 
 def delete_student_index(students, name_search, section_search):
