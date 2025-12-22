@@ -162,7 +162,7 @@ def calculate_all_avg(students):
         if len(students) > 0:
             total_avg = 0.0
             for student in students:
-                total_avg += float(student['average_grade'])
+                total_avg += float(student.avg_grade)
             overall_avg = total_avg / len(students)
             print(f"The overall average grade of all students is: {overall_avg:.2f}")
         else:
@@ -179,7 +179,7 @@ def delete_student_index(students, name_search, section_search):
     try:
         i = 0
         for s in students:
-            if s.get('name').lower() == name_search.lower() and s.get('section').lower() == section_search.lower():
+            if s.name.lower() == name_search.lower() and s.section.lower() == section_search.lower():
                 return i
             i += 1
         return -1
@@ -210,14 +210,14 @@ def delete_student(students):
 def check_grade_failure(record):
     try:
         list_assigments = []
-        if int(record.get('spanish_grade')) < 60:
-            list_assigments.append({'spanish_grade': record.get('spanish_grade')})
-        if int(record.get('english_grade')) < 60:
-            list_assigments.append({'english_grade': record.get('english_grade')})
-        if int(record.get('socials_grade')) < 60:
-            list_assigments.append({'socials_grade': record.get('socials_grade')})
-        if int(record.get('sciense_grade')) < 60:
-            list_assigments.append({'sciense_grade': record.get('sciense_grade')})
+        if int(record.spanish) < 60:
+            list_assigments.append({'spanish_grade': record.spanish})
+        if int(record.english) < 60:
+            list_assigments.append({'english_grade': record.english})
+        if int(record.socials) < 60:
+            list_assigments.append({'socials_grade': record.socials})
+        if int(record.science) < 60:
+            list_assigments.append({'science_grade': record.science})
         return list_assigments
     except ValueError as e:
         print(f"Error checking grade failure. {e}")
@@ -229,7 +229,7 @@ def list_failed_grades(students):
     for student in students:
         failed_assigments = check_grade_failure(student)
         if len(failed_assigments) > 0:
-            temp_dict = {'student': student, 'failed_assigments': failed_assigments}
+            temp_dict = {'student': student.name, 'failed_assigments': failed_assigments}
             failed_students.append(temp_dict)
     return failed_students
 

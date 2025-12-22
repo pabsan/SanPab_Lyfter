@@ -6,5 +6,5 @@ def initialize_program():
 
 
 if __name__ == "__main__":
-    initialize_program()
+    initialize_program() 
     

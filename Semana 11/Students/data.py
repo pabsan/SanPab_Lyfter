@@ -1,33 +1,32 @@
 import csv
 from pathlib import Path
 import actions as a
+from student_module import Student_class
 
 def export_to_csv(students):
     try:
         if len(students) > 0:
             filename = 'students_data.csv'
 
-            # Column headers
-            headers = ["name", "section", "spanish_grade", "english_grade", "socials_grade", "sciense_grade", "average_grade"]
-
             with open(filename, mode='w',newline='') as file:
-                writer = csv.DictWriter(file, fieldnames=headers)
-                writer.writeheader()
-                writer.writerows(students)
-                
+                writer = csv.writer(file)
+                writer.writerow(["name", "section", "spanish", "english", "socials", "science", "avg_grade"])
+                #writer.writeheader()
+                for student in students:
+                    writer.writerow([student.name, student.section, student.spanish, student.english, student.socials, student.science, student.avg_grade])              
             print(f"Students data successfully exported to {filename}")
         else:
             print("No student data to export.")
         input("Press enter key to exit")
 
     except TypeError as e:
-        print(f"Error exporting to JSON: {e}")
+        print(f"Error exporting to CSV: {e}")
         input("Press enter key to exit")
 
 
 def import_from_csv(filename, students):
     try:
-        data_dict = []
+        new_list = []
         added = 0
         dups = 0
         with open(filename, 'r', newline='') as file:
@@ -40,10 +39,10 @@ def import_from_csv(filename, students):
                     print(f"-- Duplicate student found in CSV: {name} in section {section}. Skipping entry. --")
                 else:
                     added += 1
-                    data_dict.append(row)
+                    new_list.append(Student_class(**row))
         print(f"Import completed. {added} students added, {dups} duplicates skipped.")
         input("Press enter key to exit")
-        return data_dict
+        return new_list
     except FileNotFoundError as e:
         print(f"Error: File not found. {e}")
         input("Press enter key to exit")
