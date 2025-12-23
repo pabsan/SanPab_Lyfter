@@ -1,5 +1,6 @@
 import re
 from student_module import Student_class
+from fail_grades_module import FailGrades
 
 class InvalidGradeError(Exception):
     def __init__(self):
@@ -207,45 +208,14 @@ def delete_student(students):
     input("Press enter key to exit")
 
 
-def check_grade_failure(record):
-    try:
-        list_assigments = []
-        if int(record.spanish) < 60:
-            list_assigments.append({'spanish_grade': record.spanish})
-        if int(record.english) < 60:
-            list_assigments.append({'english_grade': record.english})
-        if int(record.socials) < 60:
-            list_assigments.append({'socials_grade': record.socials})
-        if int(record.science) < 60:
-            list_assigments.append({'science_grade': record.science})
-        return list_assigments
-    except ValueError as e:
-        print(f"Error checking grade failure. {e}")
-        return [] 
-
-
-def list_failed_grades(students):
-    failed_students= []
-    for student in students:
-        failed_assigments = check_grade_failure(student)
-        if len(failed_assigments) > 0:
-            temp_dict = {'name': student.name, 'section': student.section, 'failed_assigments': failed_assigments}
-            failed_students.append(temp_dict)
-    return failed_students
-
-
 def print_failed_grades(students):
     print("=== Students with Failed Grades ===")
-    failed_students = list_failed_grades(students)
-    if len(failed_students) > 0:
-        for record in failed_students:
-            student = record.get('name')
-            failed_assigments = record.get('failed_assigments')
-            print(f"Student Name: {record.get('name')} | Section: {record.get('section')}")
-            for assigment in failed_assigments:
-                for key, value in assigment.items():
-                    print(f"   - {key.replace('_grade','').capitalize()} Grade: {value}")   
-        print("==================================")
-    else:
-        print("No students with failed grades.")
+    for student in students:
+        fails = FailGrades(student)
+        if len(fails.fail_grades) > 0:
+            print(f"Student Name: {student.name} | Section: {student.section}")
+            for fail in fails.fail_grades:
+                for key, value in fail.items():
+                    print(f"   - {key.capitalize()} Grade: {value}")
+    print("==================================")
     input("Press any key to exit")
