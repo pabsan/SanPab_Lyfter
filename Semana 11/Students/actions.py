@@ -229,7 +229,7 @@ def list_failed_grades(students):
     for student in students:
         failed_assigments = check_grade_failure(student)
         if len(failed_assigments) > 0:
-            temp_dict = {'student': student.name, 'failed_assigments': failed_assigments}
+            temp_dict = {'name': student.name, 'section': student.section, 'failed_assigments': failed_assigments}
             failed_students.append(temp_dict)
     return failed_students
 
@@ -239,9 +239,9 @@ def print_failed_grades(students):
     failed_students = list_failed_grades(students)
     if len(failed_students) > 0:
         for record in failed_students:
-            student = record.get('student')
+            student = record.get('name')
             failed_assigments = record.get('failed_assigments')
-            print(f"Student Name: {student.get('name')} | Section: {student.get('section')}")
+            print(f"Student Name: {record.get('name')} | Section: {record.get('section')}")
             for assigment in failed_assigments:
                 for key, value in assigment.items():
                     print(f"   - {key.replace('_grade','').capitalize()} Grade: {value}")   
