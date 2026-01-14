@@ -1,3 +1,5 @@
+from ejer1_stack import Stack
+
 class Node:
     data: str
     
@@ -7,6 +9,43 @@ class Node:
         self.right = prev
 
 
+class NodeStack:
+  data: str
+
+  def __init__(self, data, next=None):
+    self.data = data
+    self.next = next
+
+
+class Stack:
+  head: Node
+  
+  def __init__(self,head):
+    self.head = head
+  
+  def print_stack(self):
+    current_node = self.head
+    if current_node is None:
+      print("Stack is empty")
+      return None
+    while current_node is not None:
+        print(current_node.data)
+        current_node = current_node.right
+
+  def push_stack(self, new_node):
+    new_node.right = self.head
+    self.head = new_node
+  
+
+  def pop_stack(self):
+    if self.head is None:
+      print("Stack is empty. Cannot pop.")
+      return None
+    popped = self.head
+    self.head = self.head.right
+    return popped
+
+
 class BinaryTree:
     root: Node
 
@@ -14,36 +53,31 @@ class BinaryTree:
         self.root = root
         self.node_count = 1
 
-    def print_in_order(self):
-        stack = []
+    def print_tree(self):
         current = self.root
-        level_count = 0
-        count_nodes = self.node_count
+        stack = Stack(None)
         i = 0
-
-        while current is not None or stack:
-            # Go to the leftmost node
+        direction = ''
+        aux = 0
+        while current is not None or stack.head is not None:
+            #Left
             while current is not None:
-                stack.append(current)
+                stack.push_stack(Node(current))
                 current = current.left
-                flag = '/'  # Just to indicate direction
-
-            # Visit node
-            current = stack.pop()
-            i += 1
-            if i > 2:
-                level_count += 1
-                i = 0
-            node_print = current.data
-            if i == 1:
-                print(f'{node_print.rjust(count_nodes)} \n{flag.rjust(count_nodes)}')
+                direction = 'left'
+            
+            node_stack = stack.pop_stack()
+            current = node_stack.data
+            if i != 0:
+                print(f'{direction}: {current.data}')
             else:
-                print(f'{node_print.rjust(count_nodes)} \n{flag.rjust(count_nodes)}')
-            count_nodes -= 1
-            # Go to the right node
+                print(f'Root: {current.data}')
+            #Right
             current = current.right
-            flag = '\\'  # Just to indicate direction
-    
+            direction = 'right'
+            i += 1
+
+   
     def insert(self, data):
         new_node = Node(data)
         if self.root is None:
@@ -77,4 +111,4 @@ if __name__ == "__main__":
     tree.insert("z")
     
     print("In-order of the binary tree:")
-    tree.print_in_order()
+    tree.print_tree()
