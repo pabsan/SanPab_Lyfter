@@ -1,5 +1,3 @@
-from ejer1_stack import Stack
-
 class Node:
     data: str
     
@@ -9,73 +7,55 @@ class Node:
         self.right = prev
 
 
-class NodeStack:
-  data: str
-
-  def __init__(self, data, next=None):
-    self.data = data
-    self.next = next
-
-
-class Stack:
-  head: Node
-  
-  def __init__(self,head):
-    self.head = head
-  
-  def print_stack(self):
-    current_node = self.head
-    if current_node is None:
-      print("Stack is empty")
-      return None
-    while current_node is not None:
-        print(current_node.data)
-        current_node = current_node.right
-
-  def push_stack(self, new_node):
-    new_node.right = self.head
-    self.head = new_node
-  
-
-  def pop_stack(self):
-    if self.head is None:
-      print("Stack is empty. Cannot pop.")
-      return None
-    popped = self.head
-    self.head = self.head.right
-    return popped
-
-
 class BinaryTree:
     root: Node
 
     def __init__(self, root):
         self.root = root
         self.node_count = 1
+    
+
+    def format_output(self, node, is_root):
+       if is_root:
+          return f'Root: {node.data}'
+       else:
+          return f'{node.data}'
+    
+
+    def print_node(self,text):
+        print(text)
 
     def print_tree(self):
         current = self.root
-        stack = Stack(None)
+        #stack = Stack(None)
         i = 0
         direction = ''
-        aux = 0
-        while current is not None or stack.head is not None:
+        first = True
+        aux = None
+        while current is not None or aux is not None:
             #Left
             while current is not None:
-                stack.push_stack(Node(current))
-                current = current.left
-                direction = 'left'
-            
-            node_stack = stack.pop_stack()
-            current = node_stack.data
-            if i != 0:
-                print(f'{direction}: {current.data}')
+                temp_left = current.left
+
+                #push to aux
+                current.left = aux
+                aux = current
+
+                current = temp_left
+
+            node = aux
+            aux = aux.left
+            node.left = None
+
+            if first:
+               first = False
+               text = self.format_output(node, True)
+               self.print_node(text)
             else:
-                print(f'Root: {current.data}')
-            #Right
-            current = current.right
-            direction = 'right'
-            i += 1
+                text = self.format_output(node, False)
+                self.print_node(text)
+            
+            current = node.right
 
    
     def insert(self, data):
@@ -98,6 +78,7 @@ class BinaryTree:
                     self.node_count += 1
                     return
                 current = current.right
+
     
 if __name__ == "__main__":
     root_node = Node("m")
