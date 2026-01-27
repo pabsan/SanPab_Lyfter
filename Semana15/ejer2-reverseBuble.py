@@ -3,24 +3,33 @@ def reverse_buble_sort(my_list):
     i = len(my_list) - 1
     QA1 = 0
     QA2 = 0
-    while i >= n:
+    outer_index = 0 
+    while i >= (n):
         modified = False
         j = len(my_list) - 1
-        while j >= n:
-            if my_list[j] < my_list[i]:
+        while j >= (n + 1 + outer_index):
+            current = my_list[j]
+            current_next = my_list[j-1]
+            #print(f'Debug: current={current}, current_next={current_next}, is greater: {current < current_next}')
+            if current < current_next:
                 #cambiar
-                temp = my_list[i]
-                my_list[i] = my_list[j]
-                my_list[j] = temp
-                #modified = True
+                my_list[j] = current_next
+                my_list[j-1] = current
+                modified = True
             j -= 1
             QA2 += 1
-        #if not modified:
-        #    break
+        if not modified:
+            break
         i -= 1
         QA1 += 1
+        outer_index += 1
     print("--> QA1:", QA1, "QA2:", QA2, "List Length:", len(my_list))
     
+
+
+my_list = [3,2,1]
+reverse_buble_sort(my_list)
+print(my_list)
 
 my_list = [5,3,8,6,2,3,7,4,1]
 reverse_buble_sort(my_list)

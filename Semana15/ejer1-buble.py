@@ -3,15 +3,16 @@ def my_buble_sort(my_list):
     i = 0
     QA1 = 0
     QA2 = 0
-    while i < n:
+    while i < n-1:
         modified = False
         j = 0
-        while j  < n:
-            if my_list[j] > my_list[i]:
+        while j  < n - 1 - i:
+            current = my_list[j]
+            current_next = my_list[j+1]
+            if current > current_next:
                 #cambiar
-                temp = my_list[i]
-                my_list[i] = my_list[j]
-                my_list[j] = temp
+                my_list[j] = current_next
+                my_list[j+1] = current
                 modified = True
             j += 1
             QA2 += 1
