@@ -3,15 +3,16 @@ def my_buble_sort(my_list):
     i = 0 #O(1)
     QA1 = 0 #O(1)
     QA2 = 0 #O(1)
-    while i < n: #O(n)
+    while i < n-1: #O(n)
         modified = False #O(1)
         j = 0 #O(1)
-        while j  < n: #O(n^2)
-            if my_list[j] > my_list[i]: #O(1)
+        while j  < n - 1 - i: #O(n^2)
+            current = my_list[j] #O(log n)
+            current_next = my_list[j+1] #O(1)
+            if current > current_next: #O(1)
                 #cambiar
-                temp = my_list[i] #O(1)
-                my_list[i] = my_list[j] #O(1)
-                my_list[j] = temp #O(1)
+                my_list[j] = current_next #O(1)
+                my_list[j+1] = current #O(1)
                 modified = True #O(1)
             j += 1 #O(1)
             QA2 += 1 #O(1)
@@ -22,7 +23,7 @@ def my_buble_sort(my_list):
     print("--> QA1:", QA1, "QA2:", QA2, "List Length:", n) #O(1)
     
 
-my_list = [5,3,8,6,2,3,7,4,1] #0(1)
+my_list = [5,3,8,6,2,3,7,4,1] #O(1)
 my_buble_sort(my_list) #O(n^2)
 print(my_list) #O(1)
 
