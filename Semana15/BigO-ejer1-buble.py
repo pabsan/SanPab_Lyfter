@@ -1,0 +1,36 @@
+def my_buble_sort(my_list):
+    n = len(my_list) #O(1)
+    i = 0 #O(1)
+    QA1 = 0 #O(1)
+    QA2 = 0 #O(1)
+    while i < n-1: #O(n)
+        modified = False #O(1)
+        j = 0 #O(1)
+        while j  < n - 1 - i: #O(n^2)
+            current = my_list[j] #O(log n)
+            current_next = my_list[j+1] #O(1)
+            if current > current_next: #O(1)
+                #cambiar
+                my_list[j] = current_next #O(1)
+                my_list[j+1] = current #O(1)
+                modified = True #O(1)
+            j += 1 #O(1)
+            QA2 += 1 #O(1)
+        if not modified: #O(1)
+            break #O(1)
+        i += 1 #O(1)
+        QA1 = i #O(1)
+    print("--> QA1:", QA1, "QA2:", QA2, "List Length:", n) #O(1)
+    
+
+my_list = [5,3,8,6,2,3,7,4,1] #O(1)
+my_buble_sort(my_list) #O(n^2)
+print(my_list) #O(1)
+
+my_list2 = ["d","a","c","b","e"] #O(1)
+my_buble_sort(my_list2) #O(n^2)
+print(my_list2) #O(1)
+
+my_sorted_list = [10,20,30,40,50,100,120,30000] #O(1)
+my_buble_sort(my_sorted_list) #O(n^2)
+print(my_sorted_list) #O(1)
