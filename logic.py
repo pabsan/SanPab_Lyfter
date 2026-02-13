@@ -7,14 +7,22 @@ class Category:
 
 
 class Transaction:
+    def validate_transaction_type(self, transaction_type):
+        return transaction_type in ['income', 'expense']
+
     def __init__(self,transaction_title, amount, category, transaction_type):
+        if amount < 0:
+            raise ValueError("Amount cannot be negative.")
+        if not self.validate_transaction_type(transaction_type):
+            raise ValueError("Transaction type must be 'income' or 'expense'.")
         self.transaction_title = transaction_title
         self.amount = amount
         self.category = category
-        self.type = transaction_type
+        self.transaction_type = transaction_type
+        
 
     def __str__(self):
-        return f'Transaction Title: {self.transaction_title} Amount: {self.amount} Category: {self.category.category_name} Type: {self.type}'
+        return f'Transaction Title: {self.transaction_title} Amount: {self.amount} Category: {self.category.category_name} Type: {self.transaction_type}'
 
 
 
@@ -78,7 +86,7 @@ class FinanceManagement:
     def total_income(self):
         total = 0
         for transaction in self.transactions:
-            if transaction.type == 'income':
+            if transaction.transaction_type == 'income':
                 total += transaction.amount
         return total
     
@@ -86,7 +94,7 @@ class FinanceManagement:
     def total_expense(self):
         total = 0
         for transaction in self.transactions:
-            if transaction.type == 'expense':
+            if transaction.transaction_type == 'expense':
                 total += transaction.amount
         return total
     
@@ -107,6 +115,7 @@ if __name__ == "__main__":
     finance_manager.add_transaction(transaction1)
     finance_manager.add_transaction(transaction2)
     transaction3 = Transaction("Salary", 3000, finance_manager.categories[2], "income")
+    #transaction4 = Transaction("Salary", -10, finance_manager.categories[2], "expense") # This will raise a ValueError due to the negative amount
     finance_manager.add_transaction(transaction3)
     print("Categories:")
     finance_manager.print_categories()
