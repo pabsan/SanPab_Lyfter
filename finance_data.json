@@ -1,0 +1,33 @@
+{
+    "categories": [
+        {
+            "category_name": "Food"
+        },
+        {
+            "category_name": "Rent"
+        },
+        {
+            "category_name": "Utilities"
+        }
+    ],
+    "transactions": [
+        {
+            "transaction_title": "Grocery Shopping",
+            "amount": 150,
+            "category": "Food",
+            "transaction_type": "expense"
+        },
+        {
+            "transaction_title": "Monthly Rent",
+            "amount": 1000,
+            "category": "Rent",
+            "transaction_type": "expense"
+        },
+        {
+            "transaction_title": "Salary",
+            "amount": 3000,
+            "category": "Utilities",
+            "transaction_type": "income"
+        }
+    ]
+}
