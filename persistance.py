@@ -1,13 +1,11 @@
-import logic
+from logic import FinanceManagement, Transaction
 import json
-
-file_name = "finance_data.json"
 
 def get_categories(finance_manager):
     for category in finance_manager.categories:
         print(category.category_name)
 
-def save_data(finance_manager):
+def save_data(finance_manager, file_name):
     data = {
         "categories":[],
         "transactions":[]
@@ -23,3 +21,32 @@ def save_data(finance_manager):
         })
     with open(file_name, "w") as f:
         json.dump(data, f, indent=4)
+
+def load_data(file_name):
+    try:
+        with open(file_name, "r") as file:
+            data = json.load(file)
+        
+        #first categories
+        finance = FinanceManagement()
+        for category in data.get('categories', []):
+            finance.add_category(category.get('category_name'))
+
+        #then transactions
+        for transaction in data.get('transactions', []):
+            finance.add_trasaction_by_data(
+                transaction.get('transaction_title'), 
+                transaction.get('amount'),
+                transaction.get('category'),
+                transaction.get('transaction_type'))
+
+        #final output
+        return finance
+
+    except FileNotFoundError:
+        print(f"Error file {file_name} not found")
+        return FinanceManagement()
+    except json.JSONDecodeError:
+        print(f"Error decoding file {file_name}")
+        return FinanceManagement()
+
