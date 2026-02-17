@@ -8,6 +8,15 @@
         },
         {
             "category_name": "Utilities"
+        },
+        {
+            "category_name": "Drinks"
+        },
+        {
+            "category_name": "Other"
+        },
+        {
+            "category_name": "Internet"
         }
     ],
     "transactions": [
@@ -28,6 +37,30 @@
             "amount": 3000,
             "category": "Utilities",
             "transaction_type": "income"
+        },
+        {
+            "transaction_title": "test",
+            "amount": 10.0,
+            "category": "Food",
+            "transaction_type": "expense"
+        },
+        {
+            "transaction_title": "Transport",
+            "amount": 3.0,
+            "category": "Other",
+            "transaction_type": "expense"
+        },
+        {
+            "transaction_title": "extras",
+            "amount": 5.0,
+            "category": "Utilities",
+            "transaction_type": "income"
+        },
+        {
+            "transaction_title": "test3",
+            "amount": 8.0,
+            "category": "Rent",
+            "transaction_type": "expense"
         }
     ]
 }

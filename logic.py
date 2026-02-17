@@ -80,6 +80,17 @@ class FinanceManagement:
     def print_transactions(self):
         for transaction in self.transactions:
             print (transaction)
+    
+    def get_transactions(self):
+        data = []
+        for transaction in self.transactions:
+            data.append([
+                transaction.transaction_title,
+                transaction.amount,
+                transaction.category.category_name,
+                transaction.transaction_type
+            ])
+        return data
 
 
     @property
