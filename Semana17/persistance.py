@@ -17,7 +17,8 @@ def save_data(finance_manager, file_name):
             "transaction_title": transaction.transaction_title,
             "amount": transaction.amount,
             "category": transaction.category.category_name,
-            "transaction_type": transaction.transaction_type
+            "transaction_type": transaction.transaction_type,
+            "transaction_date": transaction.transaction_date.strftime("%d/%m/%Y")
         })
     with open(file_name, "w") as f:
         json.dump(data, f, indent=4)
@@ -38,15 +39,14 @@ def load_data(file_name):
                 transaction.get('transaction_title'), 
                 transaction.get('amount'),
                 transaction.get('category'),
-                transaction.get('transaction_type'))
+                transaction.get('transaction_type'),
+                transaction.get('transaction_date'))
 
         #final output
         return finance
 
     except FileNotFoundError:
-        print(f"Error file {file_name} not found")
         return FinanceManagement()
     except json.JSONDecodeError:
-        print(f"Error decoding file {file_name}")
         return FinanceManagement()
 

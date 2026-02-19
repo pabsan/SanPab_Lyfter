@@ -1,3 +1,5 @@
+from datetime import datetime
+
 class Category:
     def __init__(self,category_name):
         self.category_name = category_name
@@ -9,17 +11,31 @@ class Category:
 class Transaction:
     def validate_transaction_type(self, transaction_type):
         return transaction_type in ['income', 'expense']
+    
+    def validate_date_format(self, date_str):
+        try:
+            datetime.strptime(date_str, "%d/%m/%Y")
+            return True
+        except ValueError:
+            return False
 
-    def __init__(self,transaction_title, amount, category, transaction_type):
+    def __init__(self,transaction_title, amount, category, transaction_type, transaction_date=None):
+        if not isinstance(amount, (int, float)):
+            raise ValueError("Amount must be a number.")
         if amount < 0:
-            raise ValueError("Amount cannot be negative.")
+            raise ValueError("Amount must be a positive number.")
         if not self.validate_transaction_type(transaction_type):
             raise ValueError("Transaction type must be 'income' or 'expense'.")
         self.transaction_title = transaction_title
         self.amount = amount
         self.category = category
         self.transaction_type = transaction_type
-        
+        if transaction_date is None:
+            transaction_date = datetime.now().strftime("%d/%m/%Y")
+        if self.validate_date_format(transaction_date):
+            self.transaction_date = datetime.strptime(transaction_date, "%d/%m/%Y")
+        else:
+            raise ValueError("Date must be in the format dd/mm/yyyy.")      
 
     def __str__(self):
         return f'Transaction Title: {self.transaction_title} Amount: {self.amount} Category: {self.category.category_name} Type: {self.transaction_type}'
@@ -51,10 +67,7 @@ class FinanceManagement:
             print(category)
     
 
-    def add_transaction(self, transaction):
-        self.transactions.append(transaction)
-
-    def add_trasaction_by_data(self, transaction_title, amount, category_name, transaction_type):
+    def add_trasaction_by_data(self, transaction_title, amount, category_name, transaction_type, transaction_date=None):
         category = None
         for cat in self.categories:
             if cat.category_name ==  category_name:
@@ -63,7 +76,7 @@ class FinanceManagement:
         if category is None:
             category = Category(category_name)
             self.categories.append(category)
-        transaction = Transaction(transaction_title, amount, category, transaction_type)
+        transaction = Transaction(transaction_title, amount, category, transaction_type, transaction_date)
         self.transactions.append(transaction)
     
 
@@ -81,14 +94,19 @@ class FinanceManagement:
         for transaction in self.transactions:
             print (transaction)
     
-    def get_transactions(self):
+    def get_transactions(self, start_date=None, end_date=None):
         data = []
         for transaction in self.transactions:
+            if start_date is not None and transaction.transaction_date < start_date:
+                continue
+            if end_date is not None and transaction.transaction_date > end_date:
+                continue
             data.append([
                 transaction.transaction_title,
                 transaction.amount,
                 transaction.category.category_name,
-                transaction.transaction_type
+                transaction.transaction_type,
+                transaction.transaction_date.strftime("%d/%m/%Y")
             ])
         return data
 

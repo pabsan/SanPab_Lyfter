@@ -1,7 +1,7 @@
 from logic import FinanceManagement
 from persistance import load_data, save_data
 import FreeSimpleGUI as sg
-
+from datetime import datetime
 
 def run_gui():
     manager = load_data("finance_data.json")
@@ -73,6 +73,7 @@ def add_transaction_window(manager,transaction_type):
         [sg.Text("Title"), sg.Input(key="transaction_title")],
         [sg.Text("Amount"), sg.Input(key="amount")],
         [sg.Text("Category"), sg.Combo(values=[cat.category_name for cat in manager.categories], key="category")],
+        [sg.Text("Transaction Date"), sg.Input(key="transaction_date", size=(20,1),readonly=True), sg.CalendarButton("Select Date", target="transaction_date", format="%d/%m/%Y")],
         [sg.Button(f"Add {transaction_type}"), sg.Button("Cancel")]
     ]
 
@@ -85,10 +86,10 @@ def add_transaction_window(manager,transaction_type):
             title = values["transaction_title"]
             amount = values["amount"]
             category = values["category"]
-
+            t_date = values["transaction_date"]
             try:
                 if title and amount and category:
-                    manager.add_trasaction_by_data(title,float(amount),category,transaction_type)
+                    manager.add_trasaction_by_data(title,float(amount),category,transaction_type,t_date)
                     save_data(manager,"finance_data.json")
                     sg.popup(f"{transaction_type.capitalize()} added successfully!")
                     break
@@ -102,18 +103,21 @@ def movements_window(manager):
     data = manager.get_transactions()
     layout = [
         [sg.Text("Movements")],
+        [sg.Text("Start Date"), sg.Input(key="start_date", size=(20,1),readonly=True), sg.CalendarButton("Select Date", target="start_date", format="%d/%m/%Y")],
+        [sg.Text("End Date"), sg.Input(key="end_date", size=(20,1),readonly=True), sg.CalendarButton("Select Date", target="end_date", format="%d/%m/%Y")],
         [sg.Table(
             values = data,
-            headings=["Title", "Amount","Category","Type"],
+            headings=["Title", "Amount","Category","Type","Date"],
             auto_size_columns=True,
             display_row_numbers=False,
             justification="center",
-            num_rows=10,
+            num_rows=15,
             key="movements"
         )],
         [sg.Text(f"Total Income: {manager.total_income}")],
         [sg.Text(f"Total Expense: {manager.total_expense}")],
         [sg.Text(f"Balance: {manager.balance}")],
+        [sg.Button("Filter"), sg.Button("Reset Filter")],
         [sg.Button("Close")]
     ]
 
@@ -123,6 +127,26 @@ def movements_window(manager):
         event, values = window.read()
         if event == sg.WINDOW_CLOSED or event == "Close":
             break
+        elif event == "Filter":
+            start_date = values["start_date"]
+            end_date = values["end_date"]
+            try:
+                if start_date and end_date:
+                    start_date = datetime.strptime(start_date, "%d/%m/%Y")
+                    end_date = datetime.strptime(end_date, "%d/%m/%Y")
+                    if start_date > end_date:
+                        sg.popup("Start date cannot be after end date.")
+                        continue
+                    filtered_data = manager.get_transactions(start_date,end_date)
+                    window["movements"].update(values=filtered_data)
+                else:
+                    sg.popup("Please select both start and end dates for filtering.")
+            except ValueError:
+                sg.popup("Please enter valid dates in the format dd/mm/yyyy.")
+        elif event == "Reset Filter":
+            data = manager.get_transactions()
+            window["movements"].update(values=data)
+
 
     window.close()
 
