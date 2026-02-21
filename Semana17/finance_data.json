@@ -8,6 +8,9 @@
         },
         {
             "category_name": "Transport"
+        },
+        {
+            "category_name": "Internet"
         }
     ],
     "transactions": [

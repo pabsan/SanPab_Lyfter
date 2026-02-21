@@ -52,9 +52,12 @@ def add_category_window(manager):
         elif event == "Add Category":
             category_name = values["category_name"]
             if category_name:
-                manager.add_category(category_name)
-                save_data(manager,"finance_data.json")
-                sg.popup("Category added successfully!")
+                result =manager.add_category(category_name)
+                if result == "Category added successfully.":
+                    save_data(manager,"finance_data.json")
+                    sg.popup("Category added successfully!")
+                else:
+                    sg.popup(f'Error: {result}')
                 window["-CATEGORY-LIST-"].update(
                     [cat.category_name for cat in manager.categories]
                 )
@@ -96,7 +99,7 @@ def add_transaction_window(manager,transaction_type):
                 else:
                     sg.popup("Please enter valid data!")
             except ValueError:
-                sg.popup("Please enter a valid amount.")
+                sg.popup("Please enter a valid data. Please ensure the amount is a number, title is not empty, and the date is in the format dd/mm/yyyy.")
     window.close()
 
 def movements_window(manager):
