@@ -1,0 +1,39 @@
+{
+    "categories": [
+        {
+            "category_name": "Food"
+        },
+        {
+            "category_name": "Salary"
+        },
+        {
+            "category_name": "Transport"
+        },
+        {
+            "category_name": "Internet"
+        }
+    ],
+    "transactions": [
+        {
+            "transaction_title": "test",
+            "amount": 5.0,
+            "category": "Food",
+            "transaction_type": "expense",
+            "transaction_date": "17/02/2026"
+        },
+        {
+            "transaction_title": "Jan Salary",
+            "amount": 3000.0,
+            "category": "Salary",
+            "transaction_type": "income",
+            "transaction_date": "30/01/2026"
+        },
+        {
+            "transaction_title": "Bus",
+            "amount": 100.0,
+            "category": "Transport",
+            "transaction_type": "expense",
+            "transaction_date": "31/12/2025"
+        }
+    ]
+}
