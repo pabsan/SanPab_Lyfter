@@ -1,0 +1,93 @@
+CREATE TABLE Owners (
+    OwnerID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    LastName VARCHAR(100) NOT NULL,
+    Address VARCHAR(350)
+);
+
+
+CREATE TABLE Phone_Types (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    TypeName VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Owner_Phones (
+    OwnerID INTEGER,
+    PhoneNumber VARCHAR(12),
+    PhoneType INTEGER,
+    
+    PRIMARY KEY (OwnerID, PhoneNumber),
+    
+    FOREIGN KEY (OwnerID) REFERENCES Owners(OwnerID),
+    FOREIGN KEY (PhoneType) REFERENCES Phone_Types(ID)
+);
+
+CREATE TABLE Makers (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    MakerName VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE Models (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    ModelName VARCHAR(100) NOT NULL,
+    MakerID INTEGER,
+    
+    FOREIGN KEY (MakerID) REFERENCES Makers(ID)
+);
+
+CREATE TABLE Model_Details (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    ModelID INTEGER,
+    Year INTEGER,
+    Color VARCHAR(20),
+    
+    FOREIGN KEY (ModelID) REFERENCES Models(ID)
+);
+
+
+CREATE TABLE Cars (
+    VIN VARCHAR(100) PRIMARY KEY,
+    ModelID INTEGER,
+    
+    FOREIGN KEY (ModelID) REFERENCES Models(ID)
+);
+
+CREATE TABLE OwnersCars (
+    ID INTEGER,
+    VIN VARCHAR(100),
+    OwnerID INTEGER,
+    
+    PRIMARY KEY (ID, VIN, OwnerID),
+    
+    FOREIGN KEY (VIN) REFERENCES Cars(VIN),
+    FOREIGN KEY (OwnerID) REFERENCES Owners(OwnerID)
+);
+
+CREATE TABLE Insurance_Companies (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    CompanyName VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE Insurance_Policy (
+    ID VARCHAR(100) PRIMARY KEY,
+    CompanyID INTEGER,
+    StartDate DATE,
+    EndDate DATE,
+    
+    FOREIGN KEY (CompanyID) REFERENCES Insurance_Companies(ID)
+);
+
+CREATE TABLE InsurancesCars (
+    ID INTEGER,
+    VIN VARCHAR(100),
+    InsuranceID VARCHAR(100),
+    
+    PRIMARY KEY (ID, VIN, InsuranceID),
+    
+    FOREIGN KEY (VIN) REFERENCES Cars(VIN),
+    FOREIGN KEY (InsuranceID) REFERENCES Insurance_Policy(ID)
+);
+
+PRAGMA foreign_keys = ON;
