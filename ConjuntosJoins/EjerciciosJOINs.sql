@@ -2,7 +2,7 @@
 select b.Name as BookName,
       COALESCE(a.Name,'') as AuthorName
 from Books as b
-JOIN Authors as a
+LEFT JOIN Authors as a
  on b.author = a.ID;
  
 --Obtenga todos los libros que no tienen autor
