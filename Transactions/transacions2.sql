@@ -1,10 +1,8 @@
-ALTER TABLE bills
-ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'Activa';
-
 -- 1. Verificar que la factura existe
 DO $$
 DECLARE
     v_bill_id INT := 1; 
+	v_exists INT;
 BEGIN
     SELECT COUNT(*) INTO v_exists
     FROM bills
@@ -19,14 +17,12 @@ BEGIN
 	SET stock = p.stock + bi.quantity
 	FROM bill_items bi
 	WHERE p.product_id = bi.product_id
-	  AND bi.bill_id = 1; 
+	  AND bi.bill_id = v_bill_id; 
 	
 	-- 3. Marcar la factura como retornada
 	UPDATE bills
 	SET status = 'Retornada'
-	WHERE bill_id = 1;
-
-	COMMIT;
+	WHERE bill_id = v_bill_id;
 
 	RAISE NOTICE 'Factura actualizada exitosamente';
 

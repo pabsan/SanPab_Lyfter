@@ -48,3 +48,6 @@ CREATE TABLE bill_items (
         REFERENCES products(product_id)
         ON DELETE RESTRICT
 );
+
+ALTER TABLE bills
+ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'Activa';

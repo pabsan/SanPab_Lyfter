@@ -1,72 +1,67 @@
 DO $$
 DECLARE
-	v_availabe_stock INTEGER;
-	v_products INT[] := ARRAY[1,2,3];
-	v_product INT;
-	v_email varchar(150) := 'juan@example.com';
-	v_user_id INT;
-	v_bill_id INT;
+    v_available_stock INT;
+    v_products INT[] := ARRAY[1,2,3];
+    v_quantities INT[] := ARRAY[3,2,1]; -- 👈 ahora sí incluye producto 3
+    v_product INT;
+    v_user_id INT;
+    v_bill_id INT;
+    v_email VARCHAR(150) := 'juan@example.com';
+    i INT;
 BEGIN
-	FOREACH v_product IN ARRAY v_products
-	LOOP
-		SELECT stock INTO v_availabe_stock
-		FROM products
-		WHERE product_id = v_product;
 
-		IF v_availabe_stock IS NULL OR v_availabe_stock < 1 THEN
-			RAISE EXCEPTION 'Stock insuficiente. Abortando transacción.';
-		END IF;
-	END LOOP;
+    -- Validación de stock
+    FOR i IN 1..array_length(v_products,1)
+    LOOP
+        SELECT stock INTO v_available_stock
+        FROM products
+        WHERE product_id = v_products[i];
 
-	SELECT user_id INTO v_user_id
-	FROM users
-	WHERE email = v_email;
+        IF v_available_stock IS NULL OR v_available_stock < v_quantities[i] THEN
+            RAISE EXCEPTION 
+            'Stock insuficiente para producto % (stock: %, requerido: %)',
+            v_products[i], v_available_stock, v_quantities[i];
+        END IF;
+    END LOOP;
 
-	IF v_user_id IS NULL THEN
-		RAISE EXCEPTION 'Usuario no existe. Abortando transacción.';
-	END IF;
+    -- Validar usuario
+    SELECT user_id INTO v_user_id
+    FROM users
+    WHERE email = v_email;
 
-	-- insertar factura
-	INSERT INTO bills (user_id, total)
-	VALUES (v_user_id, 0)
-	RETURNING bill_id INTO v_bill_id;
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'Usuario no existe';
+    END IF;
 
-	IF v_bill_id IS NULL THEN
-		RAISE EXCEPTION 'Error al crear la factura. Abortando transacción.';
-	END IF;
+    -- Crear factura
+    INSERT INTO bills (user_id, total)
+    VALUES (v_user_id, 0)
+    RETURNING bill_id INTO v_bill_id;
 
-	BEGIN
-		-- insertar items de factura
-		INSERT INTO bill_items (bill_id, product_id, quantity, unit_price)
-		SELECT v_bill_id, product_id, 3, price
-		FROM products
-		WHERE product_id = 1;
+    -- Procesar productos (INSERT + UPDATE en un solo loop)
+    FOR i IN 1..array_length(v_products,1)
+    LOOP
+        -- Insertar item
+        INSERT INTO bill_items (bill_id, product_id, quantity, unit_price)
+        SELECT v_bill_id, product_id, v_quantities[i], price
+        FROM products
+        WHERE product_id = v_products[i];
 
-		INSERT INTO bill_items (bill_id, product_id, quantity, unit_price)
-		SELECT v_bill_id, product_id, 2, price
-		FROM products
-		WHERE product_id = 2;
+        -- Actualizar stock
+        UPDATE products
+        SET stock = stock - v_quantities[i]
+        WHERE product_id = v_products[i];
+    END LOOP;
 
-		-- actualizar stock de productos
-		UPDATE products
-		SET stock = stock - 3
-		WHERE product_id = 1;
+    -- Actualizar total
+    UPDATE bills
+    SET total = (
+        SELECT SUM(subtotal)
+        FROM bill_items
+        WHERE bill_id = v_bill_id
+    )
+    WHERE bill_id = v_bill_id;
 
-		UPDATE products
-		SET stock = stock - 2
-		WHERE product_id = 2;
-	
-		-- actualizar total de la factura
-		UPDATE bills
-		SET total = (SELECT SUM(subtotal) FROM bill_items WHERE bill_id = v_bill_id)
-		WHERE bill_id = v_bill_id;	
-	EXCEPTION
-		WHEN OTHERS THEN
-			RAISE EXCEPTION 'Error al procesar la factura: %', SQLERRM;
-	END;
-
-	RAISE NOTICE 'Factura procesada exitosamente. ID de factura: %', v_bill_id;
+    RAISE NOTICE 'Factura creada: %', v_bill_id;
 
 END $$;
-
-
