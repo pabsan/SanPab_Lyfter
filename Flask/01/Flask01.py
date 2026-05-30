@@ -11,17 +11,25 @@ def root():
 
 @app.route("/information")
 def information():
-	return {
-		"year": 2024,
-		"description": "Esto es un endpoint secundario",
-	}
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No se proporcionaron datos JSON."}), 400
+    
+    username = data.get("username")
 
-task_list = []
+    return jsonify({
+        "message": f"Hola, {username}! Bienvenido a mi API.",
+    }), 200
+
 
 @app.route("/task_input", methods=["POST"])
 def post_task():
 
-    task_id = request.form.get("id")
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No se proporcionaron datos JSON."}), 400
+    
+    task_id = data.get("id")
     if task_id is not None:
         try:
             task_id = int(task_id)
@@ -31,10 +39,10 @@ def post_task():
             return jsonify({"error": "ID debe ser un número entero."}), 400
     else:
         task_id = get_last_task_id("tasks.json") + 1
-    task_title = request.form.get("title")
-    task_description = request.form.get("description")
-    task_status = request.form.get("status")
- 
+    task_title = data.get("title")
+    task_description = data.get("description")
+    task_status = data.get("status")
+
     if not task_title or not task_description or not task_status:
           return jsonify({"error": "Missing required fields"}), 400
     
@@ -62,9 +70,14 @@ def get_tasks_by_status(status=None):
 
 @app.route("/tasks/update/<int:task_id>", methods=["PUT"])
 def update_task_endpoint(task_id):
-    task_title = request.form.get("title")
-    task_description = request.form.get("description")
-    task_status = request.form.get("status")
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No se proporcionaron datos JSON."}), 400
+    
+    task_title = data.get("title")
+    task_description = data.get("description")
+    task_status = data.get("status")
 
     if task_status not in ['Por Hacer', 'En Progreso', 'Completada']:
         return jsonify({"error": "Estado no válido. Debe ser 'Por Hacer', 'En Progreso' o 'Completada'."}), 400
