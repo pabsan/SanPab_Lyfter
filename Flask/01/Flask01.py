@@ -4,25 +4,7 @@ from persistance import save_task, get_last_task_id, load_tasks, get_task_by_sta
 
 app = Flask(__name__)
 
-@app.route("/")
-def root():
-    return "<h1>Hello, World!</h1>"
-
-
-@app.route("/information")
-def information():
-    data = request.get_json()
-    if not data:
-        return jsonify({"error": "No se proporcionaron datos JSON."}), 400
-    
-    username = data.get("username")
-
-    return jsonify({
-        "message": f"Hola, {username}! Bienvenido a mi API.",
-    }), 200
-
-
-@app.route("/task_input", methods=["POST"])
+@app.route("/tasks", methods=["POST"])
 def post_task():
 
     data = request.get_json()
@@ -51,10 +33,17 @@ def post_task():
     return jsonify(new_task.to_dict()), 201
 
 
-@app.route("/tasks/all", methods=["GET"])
+@app.route("/tasks", methods=["GET"])
 def get_tasks():
+    status_filter = request.args.get("status")
     tasks = load_tasks("tasks.json")
-    return jsonify([t.to_dict() for t in tasks]), 200
+    if status_filter:
+        filtered_tasks = list(
+            filter(lambda show: show.status == status_filter, tasks)
+            )
+        return jsonify([t.to_dict() for t in filtered_tasks]), 200
+    else:
+        return jsonify([t.to_dict() for t in tasks]), 200
 
 @app.route("/tasks/status/", methods=["GET"])
 @app.route("/tasks/status/<status>", methods=["GET"])
@@ -68,7 +57,7 @@ def get_tasks_by_status(status=None):
     tasks = get_task_by_status(status, "tasks.json")
     return jsonify([t.to_dict() for t in tasks]), 200
 
-@app.route("/tasks/update/<int:task_id>", methods=["PUT"])
+@app.route("/tasks/<int:task_id>", methods=["PUT"])
 def update_task_endpoint(task_id):
 
     data = request.get_json()
@@ -92,7 +81,7 @@ def update_task_endpoint(task_id):
     return jsonify({"message": "Tarea actualizada correctamente."}), 200
 
 
-@app.route("/tasks/delete/<int:task_id>", methods=["DELETE"])
+@app.route("/tasks/<int:task_id>", methods=["DELETE"])
 def delete_task_endpoint(task_id):
     success = delete_task(task_id, "tasks.json")
     if not success:
