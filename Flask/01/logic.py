@@ -1,4 +1,4 @@
-class task:
+class Task:
     def validate_status(self, status):
         if status not in ['Por Hacer', 'En Progreso', 'Completada']:
             return False
@@ -11,7 +11,7 @@ class task:
         if self.validate_status(status):
             self.status = status
         else:
-            raise ValueError(f"Estado no válido. Debe ser 'Por Hacer', 'En Progreso' o 'Completada'.")
+            self.status = ''
     
     def to_dict(self):
         return {

@@ -1,4 +1,4 @@
-from logic import task
+from logic import Task
 import json
 
 def get_last_task_id(file_name):
@@ -41,7 +41,7 @@ def load_tasks(file_name):
             data = json.load(file)
             tasks = []
             for item in data:
-                tasks.append(task(item['id'], item['title'], item['description'], item['status']))
+                tasks.append(Task(item['id'], item['title'], item['description'], item['status']))
             return tasks
     except FileNotFoundError:
         return []
@@ -68,7 +68,7 @@ def update_task(task_id, file_name, title=None, description=None, status=None):
                 item['title'] = title
             if description is not None:
                 item['description'] = description
-            if status is not None and status in ['Por Hacer', 'En Progreso', 'Completada']:
+            if status in ['Por Hacer', 'En Progreso', 'Completada']:
                 item['status'] = status
             task_found = True
             break

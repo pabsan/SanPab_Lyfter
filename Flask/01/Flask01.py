@@ -1,8 +1,12 @@
-from flask import Flask, request, jsonify
-from logic import task
+from flask import Flask, request, jsonify, abort
+from logic import Task
 from persistance import save_task, get_last_task_id, load_tasks, get_task_by_status, update_task, delete_task, check_task_exists
 
 app = Flask(__name__)
+
+
+def throw_error(message, code):
+    return abort(code, {"error": message})
 
 @app.route("/tasks", methods=["POST"])
 def post_task():
@@ -26,9 +30,11 @@ def post_task():
     task_status = data.get("status")
 
     if not task_title or not task_description or not task_status:
-          return jsonify({"error": "Missing required fields"}), 400
+        return jsonify({"error": "Missing required fields"}), 400
     
-    new_task = task(task_id, task_title, task_description, task_status)
+    new_task = Task(task_id, task_title, task_description, task_status)
+    if new_task.status == "":
+        return throw_error("Invalid Status", 401)
     save_task(new_task, "tasks.json")
     return jsonify(new_task.to_dict()), 201
 
@@ -68,7 +74,7 @@ def update_task_endpoint(task_id):
     task_description = data.get("description")
     task_status = data.get("status")
 
-    if task_status not in ['Por Hacer', 'En Progreso', 'Completada']:
+    if task_status is not None and task_status not in ['Por Hacer', 'En Progreso', 'Completada']:
         return jsonify({"error": "Estado no válido. Debe ser 'Por Hacer', 'En Progreso' o 'Completada'."}), 400
     
     if task_title is None and task_description is None or task_title == "" and task_description == "":
