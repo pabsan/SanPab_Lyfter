@@ -6,7 +6,7 @@ def get_last_task_id(file_name):
         with open(file_name, "r") as file:
             data = json.load(file)
             if data:
-                return data[-1]['id']
+                return max(task['id'] for task in data)
             else:
                 return 0
     except FileNotFoundError:
@@ -47,11 +47,6 @@ def load_tasks(file_name):
         return []
     except json.JSONDecodeError:
         return []
-
-
-def get_task_by_status(status, file_name):
-    tasks = load_tasks(file_name)
-    return [t for t in tasks if t.status == status]
 
 
 def update_task(task_id, file_name, title=None, description=None, status=None):

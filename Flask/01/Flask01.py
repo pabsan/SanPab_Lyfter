@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, abort
 from logic import Task
-from persistance import save_task, get_last_task_id, load_tasks, get_task_by_status, update_task, delete_task, check_task_exists
+from persistance import save_task, get_last_task_id, load_tasks, update_task, delete_task, check_task_exists
 
 app = Flask(__name__)
 
@@ -34,7 +34,7 @@ def post_task():
     
     new_task = Task(task_id, task_title, task_description, task_status)
     if new_task.status == "":
-        return throw_error("Invalid Status", 401)
+        return jsonify({"error": "Estado inválido. Debe ser 'Por Hacer', 'En Progreso' o 'Completada'."}), 400
     save_task(new_task, "tasks.json")
     return jsonify(new_task.to_dict()), 201
 
@@ -50,18 +50,6 @@ def get_tasks():
         return jsonify([t.to_dict() for t in filtered_tasks]), 200
     else:
         return jsonify([t.to_dict() for t in tasks]), 200
-
-@app.route("/tasks/status/", methods=["GET"])
-@app.route("/tasks/status/<status>", methods=["GET"])
-def get_tasks_by_status(status=None):
-    if status is None:
-        tasks = load_tasks("tasks.json")
-        return jsonify([t.to_dict() for t in tasks]), 200
-    
-    if status not in ['Por Hacer', 'En Progreso', 'Completada']:
-        return jsonify({"error": "Estado no válido. Debe ser 'Por Hacer', 'En Progreso' o 'Completada'."}), 400
-    tasks = get_task_by_status(status, "tasks.json")
-    return jsonify([t.to_dict() for t in tasks]), 200
 
 @app.route("/tasks/<int:task_id>", methods=["PUT"])
 def update_task_endpoint(task_id):
