@@ -14,7 +14,7 @@ DECLARE
     row_count INT;
 BEGIN
     -- 1. Store the count in a variable
-    SELECT COUNT(*) INTO row_count FROM Usuarios WHERE;
+    SELECT COUNT(*) INTO row_count FROM Usuarios;
 
     IF row_count = 0 THEN
         INSERT INTO usuarios
