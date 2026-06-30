@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS Usuarios (
     username VARCHAR(50) UNIQUE NOT NULL,
     fecha_nacimiento DATE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    estado_cuenta BOOLEAN DEFAULT TRUE,
+    estado_cuenta VARCHAR(50) NOT NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
