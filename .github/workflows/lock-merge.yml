@@ -1,0 +1,15 @@
+name: Block Merge on Label
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+
+jobs:
+  check-in-progress:
+    name: Check In-Progress Status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for 'in_progress' label
+        if: contains(github.event.pull_request.labels.*.name, 'in_progress')
+        run: |
+          echo "This PR is still in progress and cannot be merged!"
+          exit 1
