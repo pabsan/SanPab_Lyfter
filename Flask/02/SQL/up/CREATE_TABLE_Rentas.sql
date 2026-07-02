@@ -1,22 +1,22 @@
-CREATE TABLE IF NOT EXISTS Rentas (
+CREATE TABLE IF NOT EXISTS Rents (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
-    usuario_id INT NOT NULL,
-    automovil_id INT NOT NULL,
+    user_id INT NOT NULL,
+    car_id INT NOT NULL,
 
-    fecha_renta DATE NOT NULL,
-    fecha_devolucion DATE,
-    estado_renta VARCHAR(50) NOT NULL,
+    rental_date DATE NOT NULL,
+    return_date DATE NULL,
+    status VARCHAR(50) NOT NULL,
 
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_dated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_rentas_usuario
-        FOREIGN KEY (usuario_id)
-        REFERENCES Usuarios(id)
+    CONSTRAINT fk_rents_user
+        FOREIGN KEY (user_id)
+        REFERENCES Users(id)
         ON DELETE CASCADE,
 
-    CONSTRAINT fk_rentas_automovil
-        FOREIGN KEY (automovil_id)
-        REFERENCES Automoviles(id)
+    CONSTRAINT fk_rents_car
+        FOREIGN KEY (car_id)
+        REFERENCES Cars(id)
         ON DELETE CASCADE
 );
