@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS Rents (
     car_id INT NOT NULL,
 
     rental_date DATE NOT NULL,
+    rental_end_date DATE NOT NULL,
     return_date DATE NULL,
     status VARCHAR(50) NOT NULL,
 
