@@ -1,3 +1,5 @@
+\c lyfter_car_rental;
+
 CREATE TABLE IF NOT EXISTS Users (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL,

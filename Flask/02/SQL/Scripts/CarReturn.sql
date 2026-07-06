@@ -1,6 +1,8 @@
+\c lyfter_car_rental;
+
 CREATE OR REPLACE PROCEDURE CarReturn(
     p_id INT,
-    p_return_date DATE
+    p_return_date TIMESTAMP DEFAULT NOW()
 )
 LANGUAGE plpgsql
 AS $$

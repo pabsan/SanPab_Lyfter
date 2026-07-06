@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE NewCar(
+CREATE OR REPLACE PROCEDURE lyfter_car_rental.NewCar(
     p_brand VARCHAR(100),
     p_model VARCHAR(100),
     p_model_year INT,
@@ -9,10 +9,10 @@ AS $$
 BEGIN
     IF NOT EXISTS (
         SELECT 1
-        FROM Automoviles
+        FROM lyfter_car_rental.Cars
         WHERE brand = p_brand AND model = p_model AND model_year = p_model_year AND status = p_status
     ) THEN
-        INSERT INTO Automoviles (brand, model, model_year, status)
+        INSERT INTO lyfter_car_rental.Cars (brand, model, model_year, status)
         VALUES (p_brand, p_model, p_model_year, p_status);
     END IF;
     COMMIT;

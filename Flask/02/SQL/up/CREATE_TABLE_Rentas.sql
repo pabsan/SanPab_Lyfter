@@ -1,4 +1,6 @@
-CREATE TABLE IF NOT EXISTS Rents (
+\c lyfter_car_rental;
+
+CREATE TABLE IF NOT EXISTS lyfter_car_rental.Rents (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 
     user_id INT NOT NULL,
@@ -13,11 +15,11 @@ CREATE TABLE IF NOT EXISTS Rents (
 
     CONSTRAINT fk_rents_user
         FOREIGN KEY (user_id)
-        REFERENCES Users(id)
+        REFERENCES lyfter_car_rental.Users(id)
         ON DELETE CASCADE,
 
     CONSTRAINT fk_rents_car
         FOREIGN KEY (car_id)
-        REFERENCES Cars(id)
+        REFERENCES lyfter_car_rental.Cars(id)
         ON DELETE CASCADE
 );

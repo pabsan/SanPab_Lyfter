@@ -1,3 +1,6 @@
+
+\c lyfter_car_rental;
+
 CREATE OR REPLACE PROCEDURE NewUser(
     p_name VARCHAR(100),
     p_email VARCHAR(100),

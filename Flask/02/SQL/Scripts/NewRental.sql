@@ -1,3 +1,5 @@
+\c lyfter_car_rental
+
 CREATE OR REPLACE PROCEDURE NewRental(
     p_user_id INT,
     p_car_id INT,
