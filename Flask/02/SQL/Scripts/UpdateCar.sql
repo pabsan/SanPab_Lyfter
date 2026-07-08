@@ -1,13 +1,11 @@
-\c lyfter_car_rental;
-
-CREATE OR REPLACE PROCEDURE UpdateCar(
+CREATE OR REPLACE PROCEDURE lyfter_car_rental.UpdateCar(
     p_id INT,
     p_status VARCHAR(50)
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    UPDATE Cars
+    UPDATE lyfter_car_rental.Cars
     SET status = p_status
     WHERE id = p_id;
     COMMIT;

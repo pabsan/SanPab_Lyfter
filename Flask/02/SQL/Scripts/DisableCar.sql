@@ -1,18 +1,16 @@
-\c lyfter_car_rental;
-
-CREATE OR REPLACE PROCEDURE DisableCar(
-    p_id INT,
+CREATE OR REPLACE PROCEDURE lyfter_car_rental.DisableCar(
+    p_id INT
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
     IF EXISTS (
         SELECT 1
-        FROM Cars
+        FROM lyfter_car_rental.Cars
         WHERE id = p_id
      ) THEN
 
-        UPDATE Cars
+        UPDATE lyfter_car_rental.Cars
         SET status = 'No Disponible'
         WHERE id = p_id;
 

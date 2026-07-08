@@ -1,6 +1,4 @@
-\c lyfter_car_rental;
-
-CREATE OR REPLACE PROCEDURE CarReturn(
+CREATE OR REPLACE PROCEDURE lyfter_car_rental.CarReturn(
     p_id INT,
     p_return_date TIMESTAMP DEFAULT NOW()
 )
@@ -9,16 +7,16 @@ AS $$
 BEGIN
     IF NOT EXISTS (
         SELECT 1
-        FROM Rents
+        FROM lyfter_car_rental.Rents
         WHERE id = p_id
      ) THEN
-        UPDATE Rents
+        UPDATE lyfter_car_rental.Rents
         SET return_date = p_return_date
         WHERE id = p_id;
 
-        UPDATE Cars
+        UPDATE lyfter_car_rental.Cars
         SET status = 'Disponible'
-        WHERE id = (SELECT car_id FROM Rents WHERE id = p_id);
+        WHERE id = (SELECT car_id FROM lyfter_car_rental.Rents WHERE id = p_id);
     END IF;
     COMMIT;
 END;
