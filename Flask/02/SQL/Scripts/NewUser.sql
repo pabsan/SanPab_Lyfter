@@ -15,8 +15,7 @@ BEGIN
         WHERE email = p_email OR username = p_username
     ) THEN
         INSERT INTO lyfter_car_rental.Users (name, email, username, born_date, password, status)
-        VALUES (p_name, p_email, p_username, p_username, p_born_date, p_password, p_status);
+        VALUES (p_name, p_email, p_username, p_born_date, p_password, p_status);
     END IF;
-    COMMIT;
 END;
 $$;
