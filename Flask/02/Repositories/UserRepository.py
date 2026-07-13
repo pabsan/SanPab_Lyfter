@@ -14,8 +14,15 @@ class UserRepository:
             "created_date": user_record[7]
         }
 
+    def validate_status(self, status):
+        if status not in ['Activo', 'Inactivo', 'Eliminado']:
+            return False
+        return True
+    
     def create(self, name, email, username, born_date, password, status):
         try:
+            if not self.validate_status(status):
+                return False
             result = self.db_manager.execute_query(
                 "CALL lyfter_car_rental.NewUser (%s, %s, %s, %s, %s, %s, NULL)",
                 name, email, username, born_date, password, status,
@@ -23,7 +30,6 @@ class UserRepository:
             if result:
                 status_message = result[0][0]
                 print("Stored procedure returned:", status_message)
-                self.db_manager.close_connection()
                 if status_message == "User created successfully":
                     return True
                 else:
