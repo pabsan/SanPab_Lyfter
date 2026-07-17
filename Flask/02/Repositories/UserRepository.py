@@ -22,21 +22,17 @@ class UserRepository:
     def create(self, name, email, username, born_date, password, status):
         try:
             if not self.validate_status(status):
-                return False
+                return "Error: Invalid status. Must be 'Activo', 'Inactivo' or 'Eliminado'."
             result = self.db_manager.execute_query(
                 "CALL lyfter_car_rental.NewUser (%s, %s, %s, %s, %s, %s, NULL)",
                 name, email, username, born_date, password, status,
             )
             if result:
                 status_message = result[0][0]
-                print("Stored procedure returned:", status_message)
-                if status_message == "User created successfully":
-                    return True
-                else:
-                    return False
+                return status_message
         except Exception as error:
             print("Error inserting a user into the database: ", error)
-            return False
+            return str(error)
 
     def get_all(self):
         try:

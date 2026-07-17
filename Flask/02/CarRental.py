@@ -29,12 +29,13 @@ def post_users():
         if not name or not email or not username or not born_date or not password or not status:
             return jsonify({"error": "Missing required fields"}), 400
     
+        result = users_repo.create(name, email, username, born_date, password, status)
 
-        if not users_repo.create(name, email, username, born_date, password, status):
-            return jsonify({"error": "Error creating user. Please make sure all fields are filled correctly. Status must be 'Activo', 'Inactivo' or 'Eliminado'."}), 500
-        else:
+        if result == "User created successfully":
             db_manager.close_connection()
-            return jsonify({"message": "User created successfully"}), 201
+            return jsonify({"message": result}), 201
+        else:
+            return jsonify({"error": result}), 500
     except Exception as error:
         print("Error in post_users: ", error)
         return jsonify({"error": f"Internal server error {error}"}), 500
