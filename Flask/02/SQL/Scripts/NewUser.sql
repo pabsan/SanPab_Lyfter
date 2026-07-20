@@ -4,7 +4,8 @@ CREATE OR REPLACE PROCEDURE lyfter_car_rental.NewUser(
     p_username VARCHAR(50),
     p_born_date DATE,
     p_password VARCHAR(255),
-    p_status VARCHAR(50)
+    p_status VARCHAR(50),
+	OUT p_result VARCHAR(100)
 )
 LANGUAGE plpgsql
 AS $$
@@ -16,6 +17,11 @@ BEGIN
     ) THEN
         INSERT INTO lyfter_car_rental.Users (name, email, username, born_date, password, status)
         VALUES (p_name, p_email, p_username, p_born_date, p_password, p_status);
+
+		p_result := 'User created successfully';
+    ELSE
+        p_result := 'Error: Email or Username already exists';
     END IF;
+    COMMIT;
 END;
 $$;

@@ -22,7 +22,7 @@ class CarsRepository:
             if not self.validate_status(status):
                 return "Error: Invalid status. Must be 'Dañado','Disponible','Eliminado','Ocupado','Reparación','Nuevo' or 'Desuso'."
             result = self.db_manager.execute_query(
-                "CALL lyfter_car_rental.NewCar (%s, %s, %s, %s)",
+                "CALL lyfter_car_rental.NewCar (%s, %s, %s, %s, NULL, NULL)",
                 brand, model, model_year, status
             )
             if result:
