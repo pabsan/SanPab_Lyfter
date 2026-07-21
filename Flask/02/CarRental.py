@@ -2,19 +2,31 @@ from flask import Flask, request, jsonify, abort
 from Repositories.db import PgManager
 from Repositories.UserRepository import UserRepository
 from Repositories.CarsRepository import CarsRepository
+from Repositories.RentsRepository import RentsRepository
 
 app = Flask(__name__)
 
-db_manager = PgManager(
-    db_name="lyfter_car_rental",
-    user="postgres",
-    password="admin123",
-    host="localhost"
-)
+
+def open_db_manager():
+    try:
+        db_manager = PgManager(
+            db_name="lyfter_car_rental",
+            user="postgres",
+            password="admin123",
+            host="localhost"
+        )
+        return db_manager
+    except Exception as error:
+        print("Error opening database connection: ", error)
+        abort(500, description=f"Internal server error: {error}")
 
 @app.route("/users",methods=["POST"])
 def post_users():
     try:
+       db_manager = open_db_manager()
+       if not db_manager:
+            return jsonify({"error": "Failed to connect to the database."}), 500
+       else:
         users_repo = UserRepository(db_manager)
         data = request.get_json()
         if not data:
@@ -45,7 +57,11 @@ def post_users():
 @app.route("/cars",methods=["POST"])
 def post_cars():
     try:
-        cars_repo = CarsRepository(db_manager)
+        db_manager = open_db_manager()
+        if not db_manager:
+            return jsonify({"error": "Failed to connect to the database."}), 500
+        else:
+            cars_repo = CarsRepository(db_manager)
         data = request.get_json()
         if not data:
             return jsonify({"error":"No data provided"}),500
@@ -66,6 +82,34 @@ def post_cars():
             return jsonify({"error":result}),500
     except Exception as error:
         return jsonify({"error":f"Internal server error: {error}"}),500
+    
+@app.route("/rents",methods=["POST"])
+def post_rents():
+    try:
+        db_manager = open_db_manager()
+        if not db_manager:
+            return jsonify({"error": "Failed to connect to the database."}), 500
+        else:
+            rents_repo = RentsRepository(db_manager)
+        data = request.get_json()
+        if not data:
+            return jsonify({"error":"No data provided"}),500
+        
+        user_id = data.get("user_id")
+        car_id = data.get("car_id")
+        rental_end_date = data.get("rental_end_date")
 
+        if not user_id or not car_id or not rental_end_date:
+            return jsonify({"error":"Missing required fields"}),400
+        
+        result = rents_repo.create(user_id, car_id, rental_end_date)
+        if result == "New rental created successfully":
+            db_manager.close_connection()
+            return jsonify({"message":result}),201
+        else:
+            return jsonify({"error":result}),500
+    except Exception as error:
+        return jsonify({"error":f"Internal server error: {error}"}),500
+    
 if __name__ == "__main__":
     app.run(host="localhost", debug=True)
