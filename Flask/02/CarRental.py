@@ -111,5 +111,33 @@ def post_rents():
     except Exception as error:
         return jsonify({"error":f"Internal server error: {error}"}),500
     
+
+@app.route("/cars/<int:car_id>",methods=["PUT"])
+def update_car(car_id):
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error":"No data provided"}),500
+        
+        status = data.get("status")
+        if status is None or status not in ["Dañado","Disponible","Eliminado","Ocupado","Reparación","Nuevo","Desuso"]:
+            return jsonify({"error":"Invalid status. Please verify status. It must be Dañado or Disponible or Eliminado or Ocupado or Reparación or Nuevo or Desuso"}),500
+        
+        db_manager = open_db_manager()
+        if not db_manager:
+            return jsonify({"error": "Failed to connect to the database."}), 500
+        else:
+            cars_repo = CarsRepository(db_manager)
+        result = cars_repo.update(car_id, status)
+        if result == "Car status updated successfully":
+            db_manager.close_connection()
+            return jsonify({"message":result}),200
+        else:
+            db_manager.close_connection()
+            return jsonify({"error":result}),500
+    except Exception as error:
+        return jsonify({"error":f"Internal server error: {error}"}),500
+
+    
 if __name__ == "__main__":
     app.run(host="localhost", debug=True)
