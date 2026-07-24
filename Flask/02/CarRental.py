@@ -138,6 +138,32 @@ def update_car(car_id):
     except Exception as error:
         return jsonify({"error":f"Internal server error: {error}"}),500
 
+@app.route("/users/<int:user_id>",methods=["PUT"])
+def update_user(user_id):
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error":"No data provided"}),500
+        
+        status = data.get("status")
+        if status is None or status not in ["Activo","Inactivo","Eliminado"]:
+            return jsonify({"error":"Invalid status. Please verify status. It must be Activo or Inactivo or Eliminado"}),500
+        
+        db_manager = open_db_manager()
+        if not db_manager:
+            return jsonify({"error": "Failed to connect to the database."}), 500
+        else:
+            users_repo = UserRepository(db_manager)
+        result = users_repo.update(user_id, status)
+        if result == "User updated successfully":
+            db_manager.close_connection()
+            return jsonify({"message":result}),200
+        else:
+            db_manager.close_connection()
+            return jsonify({"error":result}),500
+    except Exception as error:
+        return jsonify({"error":f"Internal server error: {error}"}),500
+
     
 if __name__ == "__main__":
     app.run(host="localhost", debug=True)

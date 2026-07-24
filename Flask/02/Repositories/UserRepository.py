@@ -49,26 +49,30 @@ class UserRepository:
     def get_by_id(self, _id):
         try:
             results = self.db_manager.execute_query(
-                "SELECT id, full_name, email, password FROM lyfter_duad.users WHERE id = %s;",
-                (_id,),
-            )
-            formatted_result = self._format_user(results[0])
-            return formatted_result
+                "SELECT id, name, email, username, born_date, password, status, created_date FROM lyfter_car_rental.Users WHERE id = %s;",_id
+                )
+            if results:
+                return self._format_user(results[0])
+            else:
+                return None
         except Exception as error:
             print("Error getting a user from the database: ", error)
             return False
 
-    def update(self, _id, full_name, email, password):
+    def update(self, id, status):
         try:
-            self.db_manager.execute_query(
-                "UPDATE lyfter_duad.users SET (full_name, email, password) = (%s, %s, %s) WHERE ID = %s",
-                (full_name, email, password, _id),
-            )
-            print("User updated successfully")
-            return True
+            if not self.validate_status(status):
+                return "Error: Invalid status. Must be 'Activo', 'Inactivo' or 'Eliminado'."
+            result = self.get_by_id(id)
+            if not result:
+                return "Error: User with the provided ID does not exist."
+            else:
+                self.db_manager.execute_query(
+                    "CALL lyfter_car_rental.UpdateUser (%s, %s)", id, status
+                )
+                return "User updated successfully"
         except Exception as error:
-            print("Error updating a user from the database: ", error)
-            return False
+            return "Error updating a user from the database: " + str(error)
 
     def delete(self, _id):
         try:
