@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS lyfter_car_rental.Rents (
     return_date TIMESTAMP NULL,
     status VARCHAR(50) NOT NULL,
 
-    created_dated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_rents_user
         FOREIGN KEY (user_id)

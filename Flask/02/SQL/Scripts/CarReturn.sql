@@ -5,13 +5,14 @@ CREATE OR REPLACE PROCEDURE lyfter_car_rental.CarReturn(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    IF NOT EXISTS (
+    IF EXISTS (
         SELECT 1
         FROM lyfter_car_rental.Rents
         WHERE id = p_id
      ) THEN
         UPDATE lyfter_car_rental.Rents
         SET return_date = p_return_date
+            ,status = 'Devuelto'
         WHERE id = p_id;
 
         UPDATE lyfter_car_rental.Cars

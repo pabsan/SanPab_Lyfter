@@ -164,6 +164,25 @@ def update_user(user_id):
     except Exception as error:
         return jsonify({"error":f"Internal server error: {error}"}),500
 
+
+@app.route("/rents/<int:rent_id>",methods=["PUT"])
+def update_rent(rent_id):
+    try:
+        db_manager = open_db_manager()
+        if not db_manager:
+            return jsonify({"error": "Failed to connect to the database."}), 500
+        else:
+            rents_repo = RentsRepository(db_manager)
+        result = rents_repo.update(rent_id)
+        if result == "Rental status updated successfully":
+            db_manager.close_connection()
+            return jsonify({"message":result}),200
+        else:
+            db_manager.close_connection()
+            return jsonify({"error":result}),500
+    except Exception as error:
+        return jsonify({"error":f"Internal server error: {error}"}),500
+
     
 if __name__ == "__main__":
     app.run(host="localhost", debug=True)
