@@ -57,3 +57,18 @@ class RentsRepository:
             except Exception as error:
                 print("Error updating car status in the database: ", error)
                 return str(error)
+
+
+    def update_status(self, id, status):
+        try:
+            result = self.get_by_id(id)
+            if not result:
+                return "Error: Rent with the provided ID does not exist."
+            else:
+                self.db_manager.execute_query(
+                    "UPDATE lyfter_car_rental.Rents SET status = %s WHERE id = %s", status, id
+                )
+                return "Rental status updated successfully"
+        except Exception as error:
+            print("Error updating rental status in the database: ", error)
+            return str(error)
