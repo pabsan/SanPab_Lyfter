@@ -51,7 +51,7 @@ class CarsRepository:
             if not self.validate_status(status):
                 return "Error: Invalid status. Must be 'Dañado','Disponible','Eliminado','Ocupado','Reparación','Nuevo' or 'Desuso'."
             result = self.get_by_id(id)
-            if not result:
+            if not result: 
                 return "Error: Car with the provided ID does not exist."
             else:
                 self.db_manager.execute_query(

@@ -192,6 +192,20 @@ def update_rent(rent_id):
     except Exception as error:
         return jsonify({"error2":f"Internal server error: {error}"}),500
 
+
+@app.route("/users",methods=["GET"])
+def get_users():
+    try:
+        db_manager = open_db_manager()
+        user_repo = UserRepository(db_manager)
+
+        filters = request.args.to_dict()
+        users = user_repo.get_all(filters)
+        db_manager.close_connection()
+
+        return jsonify(users),200
+    except Exception as error:
+        return jsonify({"error":f"Internal server error: {error}"}),500
     
 if __name__ == "__main__":
     app.run(host="localhost", debug=True)

@@ -34,11 +34,23 @@ class UserRepository:
             print("Error inserting a user into the database: ", error)
             return str(error)
 
-    def get_all(self):
+    def get_all(self, filters=None):
         try:
-            results = self.db_manager.execute_query(
-                "SELECT id, name, email, username, born_date, password, status, created_date FROM lyfter_car_rental.Users;"
-            )
+            query = """
+            SELECT id, name, email, username, born_date, password, status, created_date
+            FROM lyfter_car_rental.Users"""
+
+            params = []
+
+            if filters:
+                conditions = []
+                for column, value in filters.items():
+                    conditions.append(f"{column} = %s")
+                    params.append(value)
+                query += " WHERE " + " AND ".join(conditions)
+
+            results = self.db_manager.execute_query(query, *params)
+
             formatted_results = [self._format_user(result) for result in results]
             self.db_manager.close_connection()
             return formatted_results
