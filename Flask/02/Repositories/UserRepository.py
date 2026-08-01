@@ -36,6 +36,16 @@ class UserRepository:
 
     def get_all(self, filters=None):
         try:
+            allowed_filters = {
+                "id",
+                "name",
+                "email",
+                "username",
+                "born_date",
+                "password",
+                "status",
+                "created_date"
+            }
             query = """
             SELECT id, name, email, username, born_date, password, status, created_date
             FROM lyfter_car_rental.Users"""
@@ -45,8 +55,11 @@ class UserRepository:
             if filters:
                 conditions = []
                 for column, value in filters.items():
+                    if column not in allowed_filters:
+                        continue
                     conditions.append(f"{column} = %s")
                     params.append(value)
+                    
                 query += " WHERE " + " AND ".join(conditions)
 
             results = self.db_manager.execute_query(query, *params)

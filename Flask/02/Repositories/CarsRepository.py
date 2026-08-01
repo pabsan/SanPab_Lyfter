@@ -45,7 +45,42 @@ class CarsRepository:
         except Exception as error:
             print("Error retrieving car by ID from the database: ", error)
             return None
-        
+
+    def get_all(self, filters=None):
+            try:
+                allowed_filters = {
+                    "id",
+                    "brand",
+                    "model",
+                    "model_year",
+                    "status",
+                    "created_date"
+                }
+                query = """
+                SELECT id, brand, model, model_year, status, created_date
+                FROM lyfter_car_rental.cars"""
+    
+                params = []
+    
+                if filters:
+                    conditions = []
+                    for column, value in filters.items():
+                        if column not in allowed_filters:
+                            continue
+                        conditions.append(f"{column} = %s")
+                        params.append(value)
+                        
+                    query += " WHERE " + " AND ".join(conditions)
+    
+                results = self.db_manager.execute_query(query, *params)
+    
+                formatted_results = [self._format_car(result) for result in results]
+                self.db_manager.close_connection()
+                return formatted_results
+            except Exception as error:
+                print("Error getting all cars from the database: ", error)
+                return False
+    
     def update(self,id, status):
         try:
             if not self.validate_status(status):
