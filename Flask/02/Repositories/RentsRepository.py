@@ -5,13 +5,14 @@ class RentsRepository:
     def _format_rent(self, rent_record):
         return {
             "id": rent_record[0],
-            "user_id": rent_record[1],
-            "car_id": rent_record[2],
-            "rental_date": rent_record[3],
-            "rental_end_date": rent_record[4],
-            "return_date": rent_record[5],
-            "status": rent_record[6],
-            "created_date": rent_record[7]
+            "User": rent_record[1],
+            "car_brand": rent_record[2],
+            "car_model": rent_record[3],
+            "rental_date": rent_record[4],
+            "rental_end_date": rent_record[5],
+            "return_date": rent_record[6],
+            "status": rent_record[7],
+            "created_date": rent_record[8]
         }
 
     def get_by_id(self, id):
@@ -39,6 +40,48 @@ class RentsRepository:
         except Exception as error:
             print("Error inserting a rental into the database: ", error)
             return str(error)
+
+    def get_all(self, filters=None):
+            try:
+                allowed_filters = {
+                    "id",
+                    "user_id",
+                    "car_id",
+                    "rental_date",
+                    "rental_end_date",
+                    "return_date",
+                    "status",
+                    "created_date"
+                }
+                query = """
+                SELECT R.id, U.name as User_Name, C.brand, C.model, R.rental_date, R.rental_end_date, R.return_date, R.status, R.created_date
+                FROM lyfter_car_rental.Rents AS R
+                JOIN lyfter_car_rental.Cars AS C
+                    ON R.car_id = C.id
+                JOIN lyfter_car_rental.users AS U
+                    ON U.id = R.user_id"""
+    
+                params = []
+    
+                if filters:
+                    conditions = []
+                    for column, value in filters.items():
+                        if column not in allowed_filters:
+                            continue
+                        conditions.append(f"{column} = %s")
+                        params.append(value)
+                        
+                    query += " WHERE R." + " AND ".join(conditions)
+                    print("Query with filters:", query)
+
+                results = self.db_manager.execute_query(query, *params)
+    
+                formatted_results = [self._format_rent(result) for result in results]
+                self.db_manager.close_connection()
+                return formatted_results
+            except Exception as error:
+                print("Error getting all rents from the database: ", error)
+                return False
 
 
     def update(self,id):

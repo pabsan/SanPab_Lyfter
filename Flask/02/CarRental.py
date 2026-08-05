@@ -221,6 +221,20 @@ def get_cars():
         return jsonify(cars),200
     except Exception as error:
         return jsonify({"error":f"Internal server error: {error}"}),500
-    
+
+@app.route("/rents",methods=["GET"])
+def get_rents():
+    try:
+        db_manager = open_db_manager()
+        rents_repo = RentsRepository(db_manager)
+
+        filters = request.args.to_dict()
+        rents = rents_repo.get_all(filters)
+        db_manager.close_connection()
+
+        return jsonify(rents),200
+    except Exception as error:
+        return jsonify({"error":f"Internal server error: {error}"}),500
+
 if __name__ == "__main__":
     app.run(host="localhost", debug=True)

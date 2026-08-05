@@ -98,14 +98,3 @@ class UserRepository:
                 return "User updated successfully"
         except Exception as error:
             return "Error updating a user from the database: " + str(error)
-
-    def delete(self, _id):
-        try:
-            self.db_manager.execute_query(
-                "DELETE FROM lyfter_duad.users WHERE id = (%s)", (_id,)
-            )
-            print("User deleted successfully")
-            return True
-        except Exception as error:
-            print("Error deleting a user from the database: ", error)
-            return False
