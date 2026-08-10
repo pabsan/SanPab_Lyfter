@@ -146,8 +146,8 @@ def update_user(user_id):
             return jsonify({"error":"No data provided"}),500
         
         status = data.get("status")
-        if status is None or status not in ["Activo","Inactivo","Eliminado"]:
-            return jsonify({"error":"Invalid status. Please verify status. It must be Activo or Inactivo or Eliminado"}),500
+        if status is None or status not in ["Activo","Inactivo","Moroso","Eliminado"]:
+            return jsonify({"error":"Invalid status. Please verify status. It must be Activo or Inactivo or Moroso or Eliminado"}),500
         
         db_manager = open_db_manager()
         if not db_manager:

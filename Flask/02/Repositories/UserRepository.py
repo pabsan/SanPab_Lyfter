@@ -15,14 +15,14 @@ class UserRepository:
         }
 
     def validate_status(self, status):
-        if status not in ['Activo', 'Inactivo', 'Eliminado']:
+        if status not in ['Activo', 'Inactivo', 'Eliminado', 'Moroso']:
             return False
         return True
     
     def create(self, name, email, username, born_date, password, status):
         try:
             if not self.validate_status(status):
-                return "Error: Invalid status. Must be 'Activo', 'Inactivo' or 'Eliminado'."
+                return "Error: Invalid status. Must be 'Activo', 'Inactivo', 'Eliminado' or 'Moroso'."
             result = self.db_manager.execute_query(
                 "CALL lyfter_car_rental.NewUser (%s, %s, %s, %s, %s, %s, NULL)",
                 name, email, username, born_date, password, status,
@@ -87,7 +87,7 @@ class UserRepository:
     def update(self, id, status):
         try:
             if not self.validate_status(status):
-                return "Error: Invalid status. Must be 'Activo', 'Inactivo' or 'Eliminado'."
+                return "Error: Invalid status. Must be 'Activo', 'Inactivo', 'Eliminado' or 'Moroso'."
             result = self.get_by_id(id)
             if not result:
                 return "Error: User with the provided ID does not exist."
