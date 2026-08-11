@@ -1,27 +1,26 @@
-CREATE OR REPLACE PROCEDURE lyfter_car_rental.NewUser(
-    p_name VARCHAR(100),
-    p_email VARCHAR(100),
-    p_username VARCHAR(50),
-    p_born_date DATE,
-    p_password VARCHAR(255),
-    p_status VARCHAR(50),
+CREATE OR REPLACE PROCEDURE lyfter_car_rental.DisableCar(
+    p_id INT,
 	OUT p_result VARCHAR(100)
 )
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    IF NOT EXISTS (
+    IF EXISTS (
         SELECT 1
-        FROM lyfter_car_rental.Users
-        WHERE email = p_email OR username = p_username
-    ) THEN
-        INSERT INTO lyfter_car_rental.Users (name, email, username, born_date, password, status)
-        VALUES (p_name, p_email, p_username, p_born_date, p_password, p_status);
+        FROM lyfter_car_rental.Cars
+        WHERE id = p_id
+     ) THEN
 
-		p_result := 'User created successfully';
-    ELSE
-        p_result := 'Error: Email or Username already exists';
+        UPDATE lyfter_car_rental.Cars
+        SET status = 'Desuso'
+        WHERE id = p_id;
+
+		p_result := 'Car updated successfully';
+	ELSE
+		p_result := 'Error: Car does not exists';
+
     END IF;
     COMMIT;
 END;
 $$;
+

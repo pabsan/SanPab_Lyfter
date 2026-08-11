@@ -11,7 +11,7 @@ BEGIN
      ) THEN
 
         UPDATE lyfter_car_rental.Cars
-        SET status = 'No Disponible'
+        SET status = 'Desuso'
         WHERE id = p_id;
 
     END IF;

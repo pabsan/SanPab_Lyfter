@@ -96,3 +96,17 @@ class CarsRepository:
         except Exception as error:
             print("Error updating car status in the database: ", error)
             return str(error)
+
+    def DisableCar(self, id):
+        try:
+            result = self.get_by_id(id)
+            if not result:
+                return "Error: Car with the provided ID does not exist."
+            else:
+                self.db_manager.execute_query(
+                    "CALL lyfter_car_rental.DisableCar (%s, NULL)", id
+                )
+                return "Car disabled successfully"
+        except Exception as error:
+            print("Error disabling car in the database: ", error)
+            return str(error)

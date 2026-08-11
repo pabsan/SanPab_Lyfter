@@ -138,6 +138,24 @@ def update_car(car_id):
     except Exception as error:
         return jsonify({"error":f"Internal server error: {error}"}),500
 
+@app.route("/cars/<int:car_id>/disable", methods=["PUT"])
+def disable_car(car_id):
+    try:
+        db_manager = open_db_manager()
+        if not db_manager:
+            return jsonify({"error": "Failed to connect to the database."}), 500
+        else:
+            cars_repo = CarsRepository(db_manager)
+        result = cars_repo.DisableCar(car_id)
+        if result == "Car disabled successfully":
+            db_manager.close_connection()
+            return jsonify({"message": result}), 200
+        else:
+            db_manager.close_connection()
+            return jsonify({"error": result}), 500
+    except Exception as error:
+        return jsonify({"error": f"Internal server error: {error}"}), 500
+
 @app.route("/users/<int:user_id>",methods=["PUT"])
 def update_user(user_id):
     try:

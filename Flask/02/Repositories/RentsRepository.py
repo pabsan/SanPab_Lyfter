@@ -18,7 +18,12 @@ class RentsRepository:
     def get_by_id(self, id):
             try:
                 results = self.db_manager.execute_query(
-                    "SELECT id, user_id, car_id, rental_date, rental_end_date, return_date, status, created_date FROM lyfter_car_rental.Rents WHERE id = %s", id
+                    """SELECT R.id, U.name as User_Name, C.brand, C.model, R.rental_date, R.rental_end_date, R.return_date, R.status, R.created_date
+                                    FROM lyfter_car_rental.Rents AS R
+                                    JOIN lyfter_car_rental.Cars AS C
+                                        ON R.car_id = C.id
+                                    JOIN lyfter_car_rental.users AS U
+                                        ON U.id = R.user_id WHERE R.id = %s""", id
                 )
                 if results:
                     return self._format_rent(results[0])
@@ -45,8 +50,9 @@ class RentsRepository:
             try:
                 allowed_filters = {
                     "id",
-                    "user_id",
-                    "car_id",
+                    "name",
+                    "brand",
+                    "model",
                     "rental_date",
                     "rental_end_date",
                     "return_date",
