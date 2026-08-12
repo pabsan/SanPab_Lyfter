@@ -64,7 +64,7 @@ def post_cars():
             cars_repo = CarsRepository(db_manager)
         data = request.get_json()
         if not data:
-            return jsonify({"error":"No data provided"}),500
+            return jsonify({"error":"No data provided"}),400
         
         brand = data.get("brand")
         model = data.get("model")
@@ -93,7 +93,7 @@ def post_rents():
             rents_repo = RentsRepository(db_manager)
         data = request.get_json()
         if not data:
-            return jsonify({"error":"No data provided"}),500
+            return jsonify({"error":"No data provided"}),400
         
         user_id = data.get("user_id")
         car_id = data.get("car_id")
@@ -117,15 +117,15 @@ def update_car(car_id):
     try:
         data = request.get_json()
         if not data:
-            return jsonify({"error":"No data provided"}),500
+            return jsonify({"error":"No data provided"}),400
         
         status = data.get("status")
         if status is None or status not in ["Dañado","Disponible","Eliminado","Ocupado","Reparación","Nuevo","Desuso"]:
-            return jsonify({"error":"Invalid status. Please verify status. It must be Dañado or Disponible or Eliminado or Ocupado or Reparación or Nuevo or Desuso"}),500
+            return jsonify({"error":"Invalid status. Please verify status. It must be Dañado or Disponible or Eliminado or Ocupado or Reparación or Nuevo or Desuso"}),400
         
         db_manager = open_db_manager()
         if not db_manager:
-            return jsonify({"error": "Failed to connect to the database."}), 500
+            return jsonify({"error": "Failed to connect to the database."}), 400
         else:
             cars_repo = CarsRepository(db_manager)
         result = cars_repo.update(car_id, status)
@@ -165,7 +165,7 @@ def update_user(user_id):
         
         status = data.get("status")
         if status is None or status not in ["Activo","Inactivo","Moroso","Eliminado"]:
-            return jsonify({"error":"Invalid status. Please verify status. It must be Activo or Inactivo or Moroso or Eliminado"}),500
+            return jsonify({"error":"Invalid status. Please verify status. It must be Activo or Inactivo or Moroso or Eliminado"}),400
         
         db_manager = open_db_manager()
         if not db_manager:
@@ -197,7 +197,7 @@ def update_rent(rent_id):
             rents_repo = RentsRepository(db_manager)
         if status is not None:
             if status not in ["Activo","Inactivo","Atraso","Devuelto"]:
-                return jsonify({"error":"Invalid status. Please verify status. It must be Activo or Inactivo or Atraso or Devuelto"}),500
+                return jsonify({"error":"Invalid status. Please verify status. It must be Activo or Inactivo or Atraso or Devuelto"}),400
             result = rents_repo.update_status(rent_id, status)
         else:
             result = rents_repo.update(rent_id)
