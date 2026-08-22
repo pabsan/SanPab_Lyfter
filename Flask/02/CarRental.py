@@ -254,35 +254,6 @@ def complete_rent(rent_id):
             "error": f"Internal server error: {error}"
         }), 500
 
-
-# @app.route("/rents/<int:rent_id>",methods=["PUT"])
-# def update_rent(rent_id):
-#     try:
-#         db_manager = open_db_manager()
-#         data = request.get_json(silent=True)
-#         status = None
-#         if data:
-#             status = data.get("status")
-#         if not db_manager:
-#             return jsonify({"error": "Failed to connect to the database."}), 500
-#         else:
-#             rents_repo = RentsRepository(db_manager)
-#         if status is not None:
-#             if status not in ["Activo","Inactivo","Atraso","Devuelto"]:
-#                 return jsonify({"error":"Invalid status. Please verify status. It must be Activo or Inactivo or Atraso or Devuelto"}),400
-#             result = rents_repo.update_status(rent_id, status)
-#         else:
-#             result = rents_repo.update(rent_id)
-#         if result == "Rental status updated successfully":
-#             db_manager.close_connection()
-#             return jsonify({"message":result}),200
-#         else:
-#             db_manager.close_connection()
-#             return jsonify({"error1":result}),500
-#     except Exception as error:
-#         return jsonify({"error2":f"Internal server error: {error}"}),500
-
-
 @app.route("/users",methods=["GET"])
 def get_users():
     try:
