@@ -49,15 +49,15 @@ class RentsRepository:
     def get_all(self, filters=None):
             try:
                 allowed_filters = {
-                    "id",
-                    "name",
-                    "brand",
-                    "model",
-                    "rental_date",
-                    "rental_end_date",
-                    "return_date",
-                    "status",
-                    "created_date"
+                    "id":"R.id",
+                    "name":"U.name",
+                    "brand":"C.brand",
+                    "model":"C.model",
+                    "rental_date":"R.rental_date",
+                    "rental_end_date":"R.rental_end_date",
+                    "return_date":"R.return_date",
+                    "status":"R.status",
+                    "created_date":"R.created_date"
                 }
                 query = """
                 SELECT R.id, U.name as User_Name, C.brand, C.model, R.rental_date, R.rental_end_date, R.return_date, R.status, R.created_date
@@ -74,10 +74,10 @@ class RentsRepository:
                     for column, value in filters.items():
                         if column not in allowed_filters:
                             continue
-                        conditions.append(f"{column} = %s")
+                        conditions.append(f"{allowed_filters[column]} = %s")
                         params.append(value)
-                        
-                    query += " WHERE R." + " AND ".join(conditions)
+                if conditions:
+                    query += " WHERE " + " AND ".join(conditions)
                     print("Query with filters:", query)
 
                 results = self.db_manager.execute_query(query, *params)
