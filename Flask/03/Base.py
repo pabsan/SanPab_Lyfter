@@ -15,7 +15,7 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name:Mapped[str] = mapped_column(String(50))
     last_name:Mapped[str] = mapped_column(String(100))
     status:Mapped[str] = mapped_column(String(20))
@@ -40,7 +40,7 @@ class User(Base):
 class Address(Base):
     __tablename__ = "address"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     street: Mapped[str] = mapped_column(String(100))
     city: Mapped[str] = mapped_column(String(50))
@@ -60,7 +60,7 @@ class Address(Base):
 class Car(Base):
     __tablename__ = "Cars"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id"),
         nullable=True
