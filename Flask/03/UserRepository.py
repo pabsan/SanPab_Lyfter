@@ -31,6 +31,7 @@ class UserRepository:
                 setattr(user, key, value)
                 
             session.commit()
+            session.refresh(user)
             return user
 
     def delete(self, user_id: int) -> bool:
