@@ -61,12 +61,10 @@ try:
     print(user4)
 
 
-    # ==========================================
     # CAR REPOSITORY
-    # ==========================================
-
     car_repo = CarRepository(SessionLocal)
 
+    # Asociar el primer auto con el primer usuario
     car1 = car_repo.create(
         brand="Toyota",
         model="Corolla",
@@ -75,6 +73,7 @@ try:
         user_id=user1.id
     )
 
+    # Asociar el segundo auto con el segundo usuario
     car2 = car_repo.create(
         brand="Honda",
         model="Civic",
@@ -120,10 +119,7 @@ try:
     print(car6)
 
 
-    # ==========================================
     # TEST UPDATE USER
-    # ==========================================
-
     updated_user = user_repo.update(
         user_id=user1.id,
         name="Jonathan",
@@ -134,10 +130,7 @@ try:
     print(updated_user)
 
 
-    # ==========================================
     # TEST UPDATE CAR
-    # ==========================================
-
     updated_car = car_repo.update(
         car_id=car1.id,
         model="Corolla Hybrid",
@@ -148,10 +141,7 @@ try:
     print(updated_car)
 
 
-    # ==========================================
     # TEST DELETE CAR
-    # ==========================================
-
     deleted = car_repo.delete(car6.id)
 
     if deleted:
@@ -159,10 +149,7 @@ try:
     else:
         print("\nCar not found.")
 
-    # ==========================================
     # ADDRESS REPOSITORY
-    # ==========================================
-
     address_repo = AddressRepository(SessionLocal)
 
     # CREATE addresses
@@ -196,10 +183,7 @@ try:
     print(address3)
 
 
-    # ==========================================
     # UPDATE ADDRESS
-    # ==========================================
-
     updated_address = address_repo.update(
         address_id=address1.id,
         street="999 New Main Street",
@@ -211,10 +195,7 @@ try:
     print(updated_address)
 
 
-    # ==========================================
     # DELETE ADDRESS
-    # ==========================================
-
     deleted = address_repo.delete(address3.id)
 
     if deleted:
@@ -222,6 +203,35 @@ try:
     else:
         print("\nAddress not found.")
 
+
+    # Test select users
+    users = user_repo.get_all(
+        name="John",
+        status="active")
+
+    if users:
+        print("\nUsers found:")
+        for user in users:
+            print(user)
+
+    # Test select cars
+    cars = car_repo.get_all(
+        brand="Toyota",
+        status="available")
+
+    if cars:
+        print("\nCars found:")
+        for car in cars:
+            print(car)
+
+    # Test select addresses
+    addresses = address_repo.get_all(
+        city="Escazu")
+
+    if addresses:
+        print("\nAddresses found:")
+        for address in addresses:
+            print(address)
 
 except Exception as e:
     print("Setup failed:", e)

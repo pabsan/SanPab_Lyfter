@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from Base import Address, User
 
@@ -44,3 +45,17 @@ class AddressRepository:
                 session.delete(address)
                 session.commit()
                 return True
+
+    def get_by_id(self, address_id: int) -> Address | None:
+            with self.session_factory() as session:
+                return session.get(Address, address_id)
+
+    def get_all(self, **filters) -> list[Address]:
+        with self.session_factory() as session:
+            statement = select(Address)
+            for key, value in filters.items():
+                if not hasattr(Address, key):
+                    raise ValueError(f"Address has not attribute '{key}'")
+                statement = statement.where(getattr(Address,key) == value)
+
+            return session.scalars(statement).all()

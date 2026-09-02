@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 from Base import Car, User
 
@@ -44,3 +45,18 @@ class CarRepository:
                 session.delete(car)
                 session.commit()
                 return True
+
+    def get_by_id(self, car_id: int) -> Car | None:
+            with self.session_factory() as session:
+                return session.get(Car, car_id)
+
+    def get_all(self, **filters) -> list[Car]:
+        with self.session_factory() as session:
+            statement = select(Car)
+
+            for key, value in filters.items():
+                if not hasattr(Car, key):
+                    raise ValueError(f"Car has not attribute '{key}'")
+                statement = statement.where(getattr(Car,key) == value)
+
+            return session.scalars(statement).all()
