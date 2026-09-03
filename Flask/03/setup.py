@@ -73,6 +73,14 @@ try:
         user_id=user1.id
     )
 
+    car11 = car_repo.create(
+        brand="Nissan",
+        model="Xtrail",
+        year=2022,
+        status="available",
+        user_id=user1.id
+    )
+
     # Asociar el segundo auto con el segundo usuario
     car2 = car_repo.create(
         brand="Honda",
@@ -232,6 +240,14 @@ try:
         print("\nAddresses found:")
         for address in addresses:
             print(address)
+
+    unassiged_cars = car_repo.get_unassigned_cars()
+    if unassiged_cars:
+        print(unassiged_cars)
+
+    multiple_car_owners = user_repo.get_users_with_multiple_cars()
+    if multiple_car_owners:
+        print(multiple_car_owners)
 
 except Exception as e:
     print("Setup failed:", e)

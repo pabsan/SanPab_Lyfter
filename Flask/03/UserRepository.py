@@ -1,6 +1,6 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import sessionmaker
-from Base import User
+from Base import User, Car
 
 class UserRepository:
     UPDATABLE_FIELDS = {
@@ -59,4 +59,31 @@ class UserRepository:
                 statement = statement.where(getattr(User,key) == value)
 
             return session.scalars(statement).all()
-    
+
+    def get_users_with_multiple_cars(self):
+        with self.session_factory() as session:
+            statement = (
+                select(
+                    User.id,
+                    User.name,
+                    User.last_name,
+                    User.status,
+                    User.birth_date,
+                    User.created_at,
+                    User.updated_at,
+                    func.count(Car.id).label("Number_of_Cars")
+                )
+                .join(Car, User.id == Car.user_id)
+                .group_by(
+                    User.id,
+                    User.name,
+                    User.last_name,
+                    User.status,
+                    User.birth_date,
+                    User.created_at,
+                    User.updated_at
+                )
+                .having(func.count(Car.id) > 1)
+            )
+
+            return session.execute(statement).all()

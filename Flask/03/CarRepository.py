@@ -60,3 +60,8 @@ class CarRepository:
                 statement = statement.where(getattr(Car,key) == value)
 
             return session.scalars(statement).all()
+    
+    def get_unassigned_cars(self) -> list[Car]:
+        with self.session_factory() as session:
+             statement = select(Car).where(Car.user_id.is_(None))
+             return session.scalars(statement).all()
