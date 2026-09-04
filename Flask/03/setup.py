@@ -249,5 +249,8 @@ try:
     if multiple_car_owners:
         print(multiple_car_owners)
 
+    address_central = address_repo.get_addresses_with_street("central")
+    if address_central:
+        print(address_central)
 except Exception as e:
     print("Setup failed:", e)

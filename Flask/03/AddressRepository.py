@@ -59,3 +59,8 @@ class AddressRepository:
                 statement = statement.where(getattr(Address,key) == value)
 
             return session.scalars(statement).all()
+
+    def get_addresses_with_street(self, street: str) -> list[Address]:
+         with self.session_factory() as session:
+              statement = select(Address).where(Address.street.ilike(f"%{street}%"))
+              return session.scalars(statement).all()
