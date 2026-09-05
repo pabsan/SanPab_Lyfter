@@ -20,6 +20,9 @@ try:
         expire_on_commit=False
     )
 
+
+    # TEsto es test si se ejecuta varias veces se crearan los mismos usuarios y autos, pero no se duplican los id en la base de datos.
+
     # ==========================================
     # USER REPOSITORY
     # ==========================================
@@ -252,5 +255,7 @@ try:
     address_central = address_repo.get_addresses_with_street("central")
     if address_central:
         print(address_central)
+
+    user_data = user_repo.get_user_data_cars_address(1)
 except Exception as e:
     print("Setup failed:", e)

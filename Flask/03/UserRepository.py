@@ -87,3 +87,43 @@ class UserRepository:
             )
 
             return session.execute(statement).all()
+
+
+    def get_user_data_cars_address(self, user_id: int):
+        with self.session_factory() as session:
+            user = session.get(User, user_id)
+
+            if not user:
+                print(f"User id not found with id: {user_id}.")
+                return
+
+            print("---- User data: ----")
+            print(f"User id:{user.id}")
+            print(f"Name: {user.name} {user.last_name}")
+            print(f"Status: {user.status}")
+
+            if not user.cars:
+                print("No cars for this user")
+            else:
+                print("---- Cars data: ----")
+                for car in user.cars:
+                    print(
+                        f"Id: {car.id} "
+                        f"Model: {car.model} "
+                        f"Brand: {car.brand} "
+                        f"Year: {car.year} "
+                        f"Status: {car.status}"
+                        )
+                    
+            if not user.addresses:
+                print("No addresses for this user")
+            else:
+                print("---- Addresses data: ----")
+                for address in user.addresses:
+                    print(
+                        f"Id: {address.id} "
+                        f"Street: {address.street} "
+                        f"City: {address.city} "
+                        f"State: {address.state} "
+                        f"Zip code: {address.zip_code}"
+                    )
