@@ -7,7 +7,7 @@ CREATE OR REPLACE PROCEDURE lyfter_car_rental.NewRental(
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    IF NOT EXISTS (
+    IF EXISTS (
         SELECT 1
         FROM lyfter_car_rental.Cars
         WHERE id = p_car_id AND lower(status) = 'disponible'
