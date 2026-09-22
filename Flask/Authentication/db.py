@@ -14,11 +14,14 @@ metadata_obj = MetaData()
 class Base(DeclarativeBase):
     pass
 
-class users(Base):
+class User(Base):
     __tablename__ = "users"
     id : Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     username: Mapped[String] = mapped_column(String(30))
-    password: Mapped[String] = mapped_column(String) 
+    password: Mapped[String] = mapped_column(String)
+
+    def __repr__(self) -> str:
+        return f""" User (id ={self.id!r}), username={self.username}"""
 
 class products(Base):
     __tablename__ = "products"
