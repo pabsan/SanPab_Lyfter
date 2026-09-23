@@ -1,65 +1,26 @@
-import datetime
-
 from sqlalchemy import create_engine
-from sqlalchemy import MetaData
-from sqlalchemy import Table, Column, Integer, String, Numeric, DateTime
+from sqlalchemy import Integer, String, Numeric, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-import numeric 
-
-
-from sqlalchemy import insert, select
-
-metadata_obj = MetaData()
-
-class Base(DeclarativeBase):
-    pass
-
-class User(Base):
-    __tablename__ = "users"
-    id : Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    username: Mapped[String] = mapped_column(String(30))
-    password: Mapped[String] = mapped_column(String)
-
-    def __repr__(self) -> str:
-        return f""" User (id ={self.id!r}), username={self.username}"""
-
-class products(Base):
-    __tablename__ = "products"
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[String] = mapped_column(String(50))
-    price: Mapped[Numeric] = mapped_column(Numeric(10,2))
-    entry_date: Mapped[DateTime] = mapped_column(DateTime)
-    quatity: Mapped[int] = mapped_column(Integer)
+from sqlalchemy.orm import sessionmaker
+from Base import Base
+from UserRepository import UserRepository
 
 class DB_Manager:
     def __init__(self):
-        self.engine = create_engine("postgresql://postgres:postgres@localhost:5432/postgres")
-        metadata_obj.create_all(self.engine)
+        DB_URI = 'postgresql://postgres:postgres@localhost:5432/postgres'
+        engine = create_engine(DB_URI, echo=True)
+        try:
+            # Create the tables
+            Base.metadata.create_all(engine)
 
-    def insert_user(self, username, password):
-        qry = insert(user_table).returning(user_table.c.id).values(username=username,password=password)
-        with self.engine.connect() as conn:
-            result = conn.execute(qry)
-            conn.commit()
-        return result.all()[0]
+            self.SessionLocal = sessionmaker(
+                bind=engine,
+                expire_on_commit=False
+            )
 
-    def get_user(self, username,password):
-        qry = select(user_table).where(user_table.c.username == username).where(user_table.c.password == password)
-        with self.engine.connect() as conn:
-            result = conn.execute(qry)
-            users = result.all()
+        except Exception as e:
+            print("Setup failed:", e)
 
-            if len(users) == 0:
-                return None
-            else:
-                return users[0]
-
-    def get_user_by_id(self, id):
-        qry = select(user_table).where(user_table.c.id == id)
-        with self.engine.connect() as conn:
-            result = conn.execute(qry)
-            users = result.all()
-            if len(users) == 0:
-                return None
-            else:
-                return users[0]
+    def insert_user(self, username: str, password: str):
+       user_repo = UserRepository(self.SessionLocal)
+       return user_repo.create(username,password)

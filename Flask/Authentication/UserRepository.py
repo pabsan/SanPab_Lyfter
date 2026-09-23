@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select
-from db import User
+from Base import User
 
 class UserRepository:
     UPDATABLE_FIELDS = {
