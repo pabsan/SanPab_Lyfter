@@ -1,11 +1,6 @@
 from sqlalchemy import create_engine
+from Base import Base
 from sqlalchemy.orm import sessionmaker
-
-from Base import Base, User, Address, Car
-from UserRepository import UserRepository
-from CarRepository import CarRepository
-from AddressRepository import AddressRepository
-
 
 DB_URI = 'postgresql://postgres:admin123@localhost:5432/postgres'
 
