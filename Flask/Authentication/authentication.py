@@ -17,7 +17,7 @@ def register():
         return Response(status=400)
     else:
         result = db_manager.insert_user(data.get('username'),data.get('password'))
-        user_id = result[0]
+        user_id = result.id
 
         token = jwt_manager.encode({'id':user_id})
         return jsonify(token=token)
@@ -28,11 +28,10 @@ def login():
     if (data.get('username') == None or data.get('password') == None):
         return Response(status=400)
     else:
-        result = db_manager.get_user(data.get('username'),data.get('password'))
-        if result == None:
+        user_id = db_manager.get_user(data.get('username'),data.get('password'))
+        if user_id == None:
             return Response(status=403)
         else:
-            user_id = result[0]
             token = jwt_manager.encode({'id':user_id})
             return jsonify(token=token)
 
@@ -45,7 +44,7 @@ def me():
             decoded = jwt_manager.decode(token)
             user_id = decoded['id']
             user = db_manager.get_user_by_id(user_id)
-            return jsonify(id=user_id, username = user[1])
+            return jsonify(id=user_id, username = user.username)
         else:
             return Response(status=403)
     except Exception as e:

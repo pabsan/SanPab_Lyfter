@@ -62,3 +62,11 @@ class UserRepository:
         with self.session_factory() as session:
             statement = select(User.id).where(User.username == username)
             return session.scalar(statement)
+
+    def get_credentials(self, username: str, password: str) -> int | None:
+        with self.session_factory() as session:
+            statement = select(User.id).where(User.username == username, User.password == password)
+            result = session.scalar(statement)
+            return result
+
+            
