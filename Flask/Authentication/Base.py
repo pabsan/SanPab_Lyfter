@@ -17,10 +17,10 @@ class User(Base):
     def __repr__(self) -> str:
         return f""" User (id ={self.id!r}), username={self.username}"""
 
-class products(Base):
+class Product(Base):
     __tablename__ = "products"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[String] = mapped_column(String(50))
     price: Mapped[Numeric] = mapped_column(Numeric(10,2))
     entry_date: Mapped[DateTime] = mapped_column(DateTime)
-    quatity: Mapped[int] = mapped_column(Integer)
+    quantity: Mapped[int] = mapped_column(Integer)
