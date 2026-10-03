@@ -4,6 +4,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.orm import sessionmaker
 from Base import Base
 from UserRepository import UserRepository
+from ProductRepository import ProductRepository
 from setup import SessionLocal
 
 class DB_Manager:
@@ -33,3 +34,7 @@ class DB_Manager:
     def get_user_by_id(self, user_id: int):
         user_repo = UserRepository(SessionLocal)
         return user_repo.get_by_id(user_id)
+
+    def insert_product(self, name: str, price: float, entry_date: DateTime, quantity: Integer):
+        product_repo = ProductRepository(SessionLocal)
+        return product_repo.create(name, price, entry_date, quantity)
