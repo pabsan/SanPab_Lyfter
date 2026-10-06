@@ -14,7 +14,10 @@ class JWT_Manager:
 
     def decode(self, token):
         try:
-            decoded = jwt.decode(token, self.secret, self.algorithm)
+            decoded = jwt.decode(token, 
+                                 self.secret, 
+                                 algorithms=[self.algorithm])
             return decoded
-        except:
+        except Exception as e:
+            print(f"Decode error: {e}")
             return None

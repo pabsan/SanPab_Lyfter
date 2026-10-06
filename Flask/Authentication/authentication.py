@@ -1,6 +1,7 @@
 from db import DB_Manager
 from JWT_Manager import JWT_Manager
 from flask import Flask, request, Response, jsonify
+from autorization import autorization
 
 app = Flask(__name__)
 
@@ -16,7 +17,7 @@ def register():
     if (data.get('username') == None or data.get('password') == None):
         return Response(status=400)
     else:
-        result = db_manager.insert_user(data.get('username'),data.get('password'))
+        result = db_manager.insert_user(data.get('username'),data.get('password'), data.get('user_type'))
         user_id = result.id
 
         token = jwt_manager.encode({'id':user_id})
@@ -44,28 +45,12 @@ def me():
             decoded = jwt_manager.decode(token)
             user_id = decoded['id']
             user = db_manager.get_user_by_id(user_id)
-            return jsonify(id=user_id, username = user.username)
+            return jsonify(id=user_id, username = user.username, user_type = user.user_type)
         else:
             return Response(status=403)
     except Exception as e:
         return Response(status=500)
 
-
-def get_userid_by_token():
-    try:
-        token = request.headers.get("Authorization")
-        if token is not None:
-            token = token.replace("Bearer ", "")
-            decoded = jwt_manager.decode(token)
-            user_id = decoded['id'] 
-            if user_id:
-                return True
-            else:
-                return False
-        else:
-            return False
-    except Exception as e:
-        return False
 
 @app.route("/product", methods=["POST"])
 def post_product():
@@ -79,8 +64,15 @@ def post_product():
         return Response("Missing required fields", status=400)
     else:
         #TODO Validate access
-        user_id = get_userid_by_token()
-        if user_id:
+        user_type = autorization.get_user_type(
+            request.headers.get("Authorization")
+            )
+
+        print(f"======USER TYPE==== {user_type}")
+
+        
+
+        if user_type == "admin":
             result = db_manager.insert_product(data.get('name'),
                                       data.get('price'),
                                       data.get('entry_date'),
@@ -95,4 +87,5 @@ def post_product():
 if __name__ == "__main__":
     db_manager = DB_Manager()
     jwt_manager = JWT_Manager('trespatitos','HS256')
+    autorization = autorization(jwt_manager,db_manager)
     app.run(host="localhost",debug=True)

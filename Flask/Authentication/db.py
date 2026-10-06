@@ -23,9 +23,9 @@ class DB_Manager:
         except Exception as e:
             print("Setup failed:", e)
 
-    def insert_user(self, username: str, password: str):
+    def insert_user(self, username: str, password: str, user_type: str):
        user_repo = UserRepository(SessionLocal)
-       return user_repo.create(username,password)
+       return user_repo.create(username,password, user_type)
 
     def get_user(self, username: str, password:str):
         user_repo = UserRepository(SessionLocal)

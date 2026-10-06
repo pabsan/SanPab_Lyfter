@@ -5,15 +5,18 @@ from Base import User
 class UserRepository:
     UPDATABLE_FIELDS = {
         "username",
-        "password"
+        "password",
+        "user_type"
     }
 
     def __init__(self, session_factory : sessionmaker):
         self.session_factory = session_factory
 
-    def create(self, username: str, password: str) -> User:
+    def create(self, username: str, password: str, user_type: str = "user") -> User:
         with self.session_factory() as session:
-            user = User(username = username, password=password)
+            if user_type not in ["user", "admin"]:
+                raise ValueError(f"Invalid user_type: {user_type}. Must be 'user' or 'admin'.")
+            user = User(username = username, password=password, user_type=user_type)
             session.add(user)
             session.commit()
             return user
