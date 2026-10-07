@@ -84,6 +84,63 @@ def post_product():
             return Response("Unauthorized", status=403)
 
 
+@app.route("/product/<int:product_id>",methods=["PUT"])
+def update_product(product_id):
+    if not request.is_json:
+        return Response("Request must be in Json format",status=400)
+    data = request.get_json()
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+        )
+    if data is None:
+        return Response("Invalid Json",status=400)
+
+    if user_type == "admin":
+        result = db_manager.update_product(product_id,**data)
+        if result:
+            return jsonify(id=product_id)
+        else:
+            return Response("Product not found",status=404)
+    else:
+        return Response("Unauthorized", status=403)
+
+@app.route("/product/<int:product_id>",methods=["DELETE"])
+def delete_product(product_id):
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+    )
+    if user_type == "admin":
+        result = db_manager.delete_product(product_id)
+        if result:
+            return jsonify(id=product_id)
+        else:
+            return Response("Product not found",status=404)
+    else:
+        return Response("Unauthorized", status=403)
+
+@app.route("/product",methods=["GET"])
+def get_products():
+    if not request.is_json:
+        return Response("Request must be in Json format",status=400)
+    data = request.get_json()
+    if data is None:
+        return Response("Invalid Json",status=400)
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+    )
+    if user_type == "admin":
+        result = db_manager.get_all_products(**data)
+        return jsonify([{
+            "id": product.id,
+            "name": product.name,
+            "price": product.price,
+            "entry_date": product.entry_date,
+            "quantity": product.quantity
+        } for product in result])
+    else:
+        return Response("Unauthorized", status=403)
+
+
 if __name__ == "__main__":
     db_manager = DB_Manager()
     jwt_manager = JWT_Manager('trespatitos','HS256')

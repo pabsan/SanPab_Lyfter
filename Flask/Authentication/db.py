@@ -38,3 +38,15 @@ class DB_Manager:
     def insert_product(self, name: str, price: float, entry_date: DateTime, quantity: Integer):
         product_repo = ProductRepository(SessionLocal)
         return product_repo.create(name, price, entry_date, quantity)
+
+    def update_product(self, product_id: int, **kwargs):
+        product_repo = ProductRepository(SessionLocal)
+        return product_repo.update(product_id,**kwargs)
+
+    def delete_product(self, product_id: int):
+        product_repo = ProductRepository(SessionLocal)
+        return product_repo.delete(product_id)
+
+    def get_all_products(self, **filters):
+        product_repo = ProductRepository(SessionLocal)
+        return product_repo.get_all(**filters)

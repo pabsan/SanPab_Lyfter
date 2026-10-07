@@ -7,7 +7,8 @@ class ProductRepository:
         "name",
         "price",
         "entry_date",
-        "quantity"
+        "quantity",
+        "id"
     }
 
     def __init__(self, session_factory: sessionmaker):
@@ -55,8 +56,7 @@ class ProductRepository:
                 if key not in self.UPDATABLE_FIELDS:
                     raise ValueError(f"Product does not have column called '{key}'")
                 statement = statement.where(getattr(Product, key) == value)
-
-                return session.scalar(statement).all()
+            return session.scalars(statement).all()
 
     def get_id_by_name(self, name:str) -> int | None:
         with self.session_factory as session:
