@@ -1,6 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select
-from Base import Invoice
+from Base import Invoice, InvoiceItem
+
 
 class InvoiceRepository:
     UPDATABLE_FIELDS = {
@@ -57,3 +58,41 @@ class InvoiceRepository:
                     raise ValueError(f"Field {key} is not in Invoice table.")
                 statement = statement.where(getattr(Invoice, key) == value)
             return session.scalars(statement).all()
+
+class InvoiceDetailRepository:
+    UPDATABLE_FIELDS = {
+        "invoice_id",
+        "product_id",
+        "quantity",
+        "subtotal"
+    }
+
+    def __init__ (self, session_factory: sessionmaker):
+        self.session_factory = session_factory
+
+
+    def valid_invoice(self, invoice_id) -> bool:
+        with self.session_factory() as session:
+            get_invoice = session.get(InvoiceItem, invoice_id)
+            if get_invoice:
+                return True
+            else:
+                return False
+
+    def valid_line_id(self,line_id, invoice_id) -> bool:
+        with self.session_factory() as session:
+            get_line_id = session.get(InvoiceItem, {"invoice_id": invoice_id, "line_item_id":line_id})
+            if get_line_id:
+                return True
+            else:
+                return False
+
+
+
+    def create_invoice_item(self, line_id: int, invoice_id: int, product_id: int, quantity: int):
+        with self.session_factory() as session:
+            if self.valid_invoice(invoice_id) and not self.valid_line_id(line_id,invoice_id):
+                invoice_item = InvoiceItem(line_id,
+                                           invoice_id,
+                                           product_id,
+                                           quantity)

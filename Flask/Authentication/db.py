@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from Base import Base
 from UserRepository import UserRepository
 from ProductRepository import ProductRepository
+from InvoiceRepository import InvoiceRepository
 from setup import SessionLocal
 
 class DB_Manager:
@@ -50,3 +51,21 @@ class DB_Manager:
     def get_all_products(self, **filters):
         product_repo = ProductRepository(SessionLocal)
         return product_repo.get_all(**filters)
+
+    def insert_invoice(self, invoice_date):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.create_invoice(invoice_date)
+
+    def update_invoice(self, invoice_id: int, **kwargs):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.update(invoice_id,**kwargs)
+
+    def delete_invoice(self, invoice_id: int):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.delete(invoice_id)
+
+    def get_invoice_by_id(self, invoice_id: int):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.get_by_id(invoice_id)
+
+    
