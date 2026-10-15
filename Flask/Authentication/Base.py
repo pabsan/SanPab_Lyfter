@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Integer, String, Numeric, DateTime, ForeignKey, Decimal
+from sqlalchemy import Integer, String, Numeric, DateTime, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
@@ -38,8 +38,8 @@ class Invoice(Base):
     __tablename__ = "invoices"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     invoice_date: Mapped[DateTime] = mapped_column(DateTime)
-    amount: Mapped[float] = mapped_column(float)
-
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    amount: Mapped[Numeric] = mapped_column(Numeric(10,2), default=0.00)
     items: Mapped[list["InvoiceItem"]] = relationship(
         back_populates="invoice", cascade="all, delete-orphan"
     )
@@ -55,7 +55,7 @@ class InvoiceItem(Base):
     invoice_id: Mapped[int] = mapped_column(ForeignKey("invoices.id"), primary_key=True)
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
     quantity: Mapped[int] = mapped_column(Integer)
-    subtotal: Mapped[Decimal] = mapped_column(Numeric(10,2), default=0.00)
+    subtotal: Mapped[Numeric] = mapped_column(Numeric(10,2), default=0.00)
 
     invoice: Mapped["Invoice"] = relationship(back_populates="items")
     product: Mapped["Product"] = relationship()

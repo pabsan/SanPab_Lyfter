@@ -63,14 +63,9 @@ def post_product():
         or data.get('entry_date') == None or data.get('quantity') == None):
         return Response("Missing required fields", status=400)
     else:
-        #TODO Validate access
         user_type = autorization.get_user_type(
             request.headers.get("Authorization")
             )
-
-        print(f"======USER TYPE==== {user_type}")
-
-        
 
         if user_type == "admin":
             result = db_manager.insert_product(data.get('name'),
@@ -139,6 +134,29 @@ def get_products():
         } for product in result])
     else:
         return Response("Unauthorized", status=403)
+
+@app.route("/invoice",methods=["POST"])
+def post_invoice():
+    if not request.is_json:
+        return Response("Request must be JSON format.", status=400)
+    data = request.get_json()
+    if not data:
+        return Response("JSON format is wrong",status=400)
+    if data.get('invoice_date') == None or data.get('invoice_date') == "":
+        return Response("Missing required data", status=400)
+    else:
+        user_type = autorization.get_user_bytoken(
+            request.headers.get("Authorization")
+        )
+        if user_type is not None:
+            result = db_manager.insert_invoice(data.get('invoice_date'),user_type)
+            invoice_id = result.id
+            return jsonify(id=invoice_id)
+        else:
+            return Response("Unauthorized", status=403)
+
+    
+
 
 
 if __name__ == "__main__":

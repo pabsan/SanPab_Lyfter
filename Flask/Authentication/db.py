@@ -52,9 +52,9 @@ class DB_Manager:
         product_repo = ProductRepository(SessionLocal)
         return product_repo.get_all(**filters)
 
-    def insert_invoice(self, invoice_date):
+    def insert_invoice(self, invoice_date: str, user_id: int):
         invoice_repo = InvoiceRepository(SessionLocal)
-        return invoice_repo.create_invoice(invoice_date)
+        return invoice_repo.create_invoice(invoice_date, user_id)
 
     def update_invoice(self, invoice_id: int, **kwargs):
         invoice_repo = InvoiceRepository(SessionLocal)
