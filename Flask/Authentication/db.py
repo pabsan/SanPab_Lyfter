@@ -68,4 +68,8 @@ class DB_Manager:
         invoice_repo = InvoiceRepository(SessionLocal)
         return invoice_repo.get_by_id(invoice_id)
 
+    def get_all_invoices(self, **filters):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.get_all(**filters)
+
     

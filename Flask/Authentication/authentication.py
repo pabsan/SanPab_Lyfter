@@ -145,13 +145,42 @@ def post_invoice():
     if data.get('invoice_date') == None or data.get('invoice_date') == "":
         return Response("Missing required data", status=400)
     else:
-        user_type = autorization.get_user_bytoken(
+        user_id = autorization.get_user_bytoken(
             request.headers.get("Authorization")
         )
-        if user_type is not None:
-            result = db_manager.insert_invoice(data.get('invoice_date'),user_type)
+        if user_id is not None:
+            result = db_manager.insert_invoice(data.get('invoice_date'),user_id)
             invoice_id = result.id
             return jsonify(id=invoice_id)
+        else:
+            return Response("Unauthorized", status=403)
+
+
+@app.route("/invoice",methods=["GET"])
+def get_invoices():
+    if not request.is_json:
+        return Response("Request must be JSON format.",status=400)
+    data = request.get_json()
+    if not data:
+        return Response("Missing required data.",status=400)
+    
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+    )
+    if user_type == "admin":
+        result = db_manager.get_all_invoices(**data)
+        return jsonify([{
+            "id": invoice.id,
+            "invoice_date": invoice.invoice_date,
+            "amount": invoice.amount,
+            "user":invoice.user_id
+        } for invoice in result])
+    else:
+        user_id = autorization.get_user_bytoken(
+            request.headers.get("Authorization")
+        )
+        if user_id is not None:
+            return Response("TODO",status=400)
         else:
             return Response("Unauthorized", status=403)
 
