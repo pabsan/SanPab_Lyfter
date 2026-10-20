@@ -180,7 +180,16 @@ def get_invoices():
             request.headers.get("Authorization")
         )
         if user_id is not None:
-            return Response("TODO",status=400)
+            result = db_manager.get_invoice_by_userId(user_id)
+            if result is not None:
+                return jsonify([{
+                    "id": invoice.id,
+                    "invoice_date": invoice.invoice_date,
+                    "total": invoice.amount,
+                    "user":user_id
+                } for invoice in result])
+            else:
+                return Response(f"No Invoices for this user id {user_id}",status=400)
         else:
             return Response("Unauthorized", status=403)
 

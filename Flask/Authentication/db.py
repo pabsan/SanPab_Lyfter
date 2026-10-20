@@ -72,4 +72,8 @@ class DB_Manager:
         invoice_repo = InvoiceRepository(SessionLocal)
         return invoice_repo.get_all(**filters)
 
+    def get_invoice_by_userId(self, user_id: int):
+        invo_repo = InvoiceRepository(SessionLocal)
+        return invo_repo.get_by_user_id(user_id)
+
     

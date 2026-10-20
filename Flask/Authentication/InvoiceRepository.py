@@ -50,6 +50,15 @@ class InvoiceRepository:
         with self.session_factory() as session:
             return session.get(Invoice, invoice_id)
 
+    def get_by_user_id(self, user_id: int, **filter) -> list[Invoice]:
+        with self.session_factory() as session:
+            statement = select(Invoice).where(Invoice.user_id == user_id)
+            for key, value in filter.items():
+                if key not in self.READTABLE_FIELDS:
+                    raise ValueError(f"Field {key} is not in Invoice table.")
+                statement = statement.where(getattr(Invoice, key) == value)
+            return session.scalars(statement).all()
+
     def get_all(self, **filter) -> list[Invoice]:
         with self.session_factory() as session:
             statement = select(Invoice)
@@ -78,14 +87,6 @@ class InvoiceDetailRepository:
             else:
                 return False
 
-    def valid_line_id(self,line_id = int, invoice_id = int) -> bool:
-        with self.session_factory() as session:
-            get_line_id = session.get(InvoiceItem, {"invoice_id": invoice_id, "line_item_id":line_id})
-            if get_line_id:
-                return True
-            else:
-                return False
-
     def valid_product(self, product_id = int) -> bool:
         with self.session_factory() as sesssion:
             get_product = sesssion.get(Product, product_id)
@@ -94,10 +95,9 @@ class InvoiceDetailRepository:
             else:
                 return False
 
-    def create_invoice_item(self, line_id: int, invoice_id: int, product_id: int, quantity: int):
+    def create_invoice_item(self, invoice_id: int, product_id: int, quantity: int):
         with self.session_factory() as session:
-            if self.valid_invoice(invoice_id) and not self.valid_line_id(line_id,invoice_id) and self.valid_product(product_id):
-                invoice_item = InvoiceItem(line_id,
-                                           invoice_id,
+            if self.valid_invoice(invoice_id) and not self.valid_line_id(invoice_id) and self.valid_product(product_id):
+                invoice_item = InvoiceItem(invoice_id,
                                            product_id,
                                            quantity)
