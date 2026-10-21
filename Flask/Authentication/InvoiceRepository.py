@@ -95,9 +95,15 @@ class InvoiceDetailRepository:
             else:
                 return False
 
-    def create_invoice_item(self, invoice_id: int, product_id: int, quantity: int):
+    def create(self, invoice_id: int, product_id: int, quantity: int):
         with self.session_factory() as session:
-            if self.valid_invoice(invoice_id) and not self.valid_line_id(invoice_id) and self.valid_product(product_id):
+            if self.valid_invoice(invoice_id) and self.valid_product(product_id):
                 invoice_item = InvoiceItem(invoice_id,
                                            product_id,
                                            quantity)
+                session.add(invoice_item)
+                session.commit()
+                return invoice_item
+            else:
+                return None
+
