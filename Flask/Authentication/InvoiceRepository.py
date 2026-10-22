@@ -1,4 +1,4 @@
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, selectinload
 from sqlalchemy import select
 from Base import Invoice, InvoiceItem, Product
 
@@ -70,10 +70,8 @@ class InvoiceRepository:
 
 class InvoiceDetailRepository:
     UPDATABLE_FIELDS = {
-        "invoice_id",
         "product_id",
-        "quantity",
-        "subtotal"
+        "quantity"
     }
 
     def __init__ (self, session_factory: sessionmaker):
@@ -106,4 +104,73 @@ class InvoiceDetailRepository:
                 return invoice_item
             else:
                 return None
+
+    def update(self, invoice_id: int, item_id: int, **kargs) -> Invoice | None:
+        with self.session_factory() as session:
+            item = session.get(InvoiceItem, invoice_id, item_id)
+
+            if not item:
+                raise ValueError("Item not found")
+
+            for key, value in kargs.items():
+                if key is not self.UPDATABLE_FIELDS:
+                    raise ValueError("Fiel {key} is not updatable")
+
+                if key == "quantity":
+                    if not isinstance(value, int) or value <= 0:
+                        raise ValueError("Quantity must be positive integer")
+                if key == "product_id":
+                    if not session.get(Product,value):
+                        raise ValueError("Product Not Found")
+
+                setattr(item, key,value)
+
+            session.commit()
+            session.refresh(item)
+
+            return item
+
+    def replace_items(self, invoice_id: int, items:list[dict]) -> Invoice:
+        with self.session_factory() as session:
+            invoice = session.get(Invoice, invoice_id)
+
+            if not invoice:
+                raise ValueError("Invoice Not Found")
+
+            #validate and consolidate products
+            quantities = {}
+            for item in items:
+                if "product_id" not in item or "quantity" not in item:
+                    raise ValueError("Each item must have product id and quantity")
+
+                product_id = item["product_id"]
+                quantity = item["quantity"]
+
+                if (not session.get(Product,product_id)):
+                    raise ValueError("Product not found")
+
+                if (not isinstance(quantity, int) or quantity <= 0):
+                    raise ValueError("Quantity must be integer positive number")
+
+                quantities [product_id] = (quantities.get(product_id,0) + quantity)
+
+            invoice.items.clear()
+
+            for product_id, quantity in quantities.items():
+                invoice.items.append(
+                    InvoiceItem(product_id = product_id, quantity =quantity)
+                )
+
+            session.flush()
+            session.commit()
+
+            statement = (select(Invoice)
+                         .options(
+                             selectinload(Invoice.items)
+                             .selectinload(InvoiceItem.product)
+                         )
+                         .where(Invoice.id == invoice_id)
+                         )
+            return session.scalar(statement)
+                    
 
