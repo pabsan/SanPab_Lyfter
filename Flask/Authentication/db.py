@@ -6,6 +6,7 @@ from Base import Base
 from UserRepository import UserRepository
 from ProductRepository import ProductRepository
 from InvoiceRepository import InvoiceRepository
+from InvoiceDetailRepository import InvoiceDetailRepository
 from setup import SessionLocal
 
 class DB_Manager:
@@ -75,5 +76,17 @@ class DB_Manager:
     def get_invoice_by_userId(self, user_id: int):
         invo_repo = InvoiceRepository(SessionLocal)
         return invo_repo.get_by_user_id(user_id)
+
+    def insert_invoice_detail(self, invoice_id: int, product_id: int, quantity: int):
+        detail_repo = InvoiceDetailRepository(SessionLocal)
+        return detail_repo.create(invoice_id,product_id,quantity)
+
+    def update_invoice_detail(self, invoice_id: int, item:int):
+        detail_repo = InvoiceDetailRepository(SessionLocal)
+        return detail_repo.update(invoice_id,item)
+
+    def replace_invoice_detail(self, invoice_id: int, items:list[dict]):
+        detail_repo = InvoiceDetailRepository(SessionLocal)
+        return detail_repo.replace_items(invoice_id,items)
 
     

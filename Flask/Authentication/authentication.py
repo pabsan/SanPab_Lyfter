@@ -193,6 +193,15 @@ def get_invoices():
         else:
             return Response("Unauthorized", status=403)
 
+@app.route("/invoice_detail",methods=["POST"])
+def post_invoice_detail():
+    if not request.is_json():
+        return Response("Request must be in Json format", status=400)
+    data = request.get_json()
+    if not data:
+        return Response("Invalid Json format", status=400)
+    
+
     
 
 
