@@ -1,6 +1,8 @@
 from sqlalchemy.orm import sessionmaker, selectinload
 from sqlalchemy import select
 from Base import Invoice, InvoiceItem, Product
+from ProductRepository import ProductRepository
+from InvoiceRepository import InvoiceRepository
 
 class InvoiceDetailRepository:
     UPDATABLE_FIELDS = {
@@ -13,7 +15,8 @@ class InvoiceDetailRepository:
 
     def valid_invoice(self, invoice_id) -> bool:
         with self.session_factory() as session:
-            get_invoice = session.get(Invoice, invoice_id)
+            invoice_repo = InvoiceRepository(session)
+            get_invoice = invoice_repo.get_by_id (invoice_id)
             if get_invoice:
                 return True
             else:
@@ -21,24 +24,43 @@ class InvoiceDetailRepository:
 
     def valid_product(self, product_id = int) -> bool:
         with self.session_factory() as sesssion:
-            get_product = sesssion.get(Product, product_id)
+            product_repo = ProductRepository(sesssion)
+            get_product = product_repo(product_id)
             if get_product:
                 return True
             else:
                 return False
 
-    def create(self, invoice_id: int, product_id: int, quantity: int):
+    def get_quantities(self, invoice_id: int, items:list[dict]):
+        quantities = {}
+        for item in items:
+            if "product_id" not in item or "quantity" not in item:
+                raise ValueError("Each item must have a product id and quantity")
+            product_id = item["product_id "]
+            quantity = item["quantity"]
+
+            if not self.valid_product(product_id):
+                raise ValueError(f"Product with id {product_id} not found")
+
+            if not isinstance(quantity, int) or quantity <= 0:
+                raise ValueError("Quantity must be a positive integer")
+
+            quantities[product_id] = quantities.get(product_id, 0) + quantity
+        return quantities
+
+
+    def create(self, invoice_id: int, items: list[dict]) -> list[InvoiceItem] | None:
         with self.session_factory() as session:
-            if quantity <= 0 or not isinstance(quantity,int):
-                raise ValueError('Quantity must be a positive integer')
-            
-            if self.valid_invoice(invoice_id) and self.valid_product(product_id):
-                invoice_item = InvoiceItem(invoice_id,
-                                           product_id,
-                                           quantity)
-                session.add(invoice_item)
+            if self.valid_invoice(invoice_id):
+                quantities = self.get_quantities(invoice_id,items)
+                invoice_items = []
+                for product_id, quantity in quantities.items():
+                    invoice_item = InvoiceItem(invoice_id, product_id, quantity)
+                    session.add(invoice_item)
+                    invoice_items.append(invoice_item)
+
                 session.commit()
-                return invoice_item
+                return invoice_items
             else:
                 return None
 
@@ -67,6 +89,7 @@ class InvoiceDetailRepository:
 
             return item
 
+
     def replace_items(self, invoice_id: int, items:list[dict]) -> Invoice:
         with self.session_factory() as session:
             invoice = session.get(Invoice, invoice_id)
@@ -75,21 +98,7 @@ class InvoiceDetailRepository:
                 raise ValueError("Invoice Not Found")
 
             #validate and consolidate products
-            quantities = {}
-            for item in items:
-                if "product_id" not in item or "quantity" not in item:
-                    raise ValueError("Each item must have product id and quantity")
-
-                product_id = item["product_id"]
-                quantity = item["quantity"]
-
-                if (not session.get(Product,product_id)):
-                    raise ValueError("Product not found")
-
-                if (not isinstance(quantity, int) or quantity <= 0):
-                    raise ValueError("Quantity must be integer positive number")
-
-                quantities [product_id] = (quantities.get(product_id,0) + quantity)
+            quantities = self.get_quantities(invoice_id, items)
 
             invoice.items.clear()
 
