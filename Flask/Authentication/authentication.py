@@ -172,7 +172,7 @@ def get_invoices():
         return jsonify([{
             "id": invoice.id,
             "invoice_date": invoice.invoice_date,
-            "amount": invoice.amount,
+            "amount": invoice.total_amount,
             "user":invoice.user_id
         } for invoice in result])
     else:
@@ -185,7 +185,7 @@ def get_invoices():
                 return jsonify([{
                     "id": invoice.id,
                     "invoice_date": invoice.invoice_date,
-                    "total": invoice.amount,
+                    "total": invoice.total_amount,
                     "user":user_id
                 } for invoice in result])
             else:
@@ -193,13 +193,37 @@ def get_invoices():
         else:
             return Response("Unauthorized", status=403)
 
-@app.route("/invoice_detail",methods=["POST"])
-def post_invoice_detail():
+@app.route("/invoice/<int:invoice_id>/items",methods=["POST"])
+def post_invoice_detail(invoice_id):
     if not request.is_json():
         return Response("Request must be in Json format", status=400)
     data = request.get_json()
     if not data:
         return Response("Invalid Json format", status=400)
+    items = data.get('items')
+    if items is None:
+        return Response("Missing required data", status=400)
+    else:
+        user_type = autorization.get_user_type(
+            request.headers.get("Authorization")
+        )
+        existing_invoice = db_manager.get_invoice_by_id(invoice_id)
+        if user_type != "admin":
+            user_id = autorization.get_user_bytoken(
+                request.headers.get("Authorization")
+            )
+            if user_id is None or not existing_invoice.user_id == user_id:
+                return Response("Unauthorized", status=403)
+        result = db_manager.insert_invoice_detail(invoice_id,items)
+        if result is not None:
+            return jsonify([{
+                "id": item.id,
+                "invoice_id": item.invoice_id,
+                "product_id": item.product_id,
+                "quantity": item.quantity
+            } for item in result])
+        else:
+            return Response("Invoice not found", status=404)
     
 
     

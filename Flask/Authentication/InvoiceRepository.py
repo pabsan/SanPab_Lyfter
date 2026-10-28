@@ -52,12 +52,20 @@ class InvoiceRepository:
 
     def get_by_user_id(self, user_id: int, **filter) -> list[Invoice]:
         with self.session_factory() as session:
-            statement = select(Invoice).where(Invoice.user_id == user_id)
+            statement = (
+                select(Invoice)
+                .options(
+                    selectinload(Invoice.items)
+                    .selectinload(InvoiceItem.product)
+                )
+                .where(Invoice.user_id == user_id)
+            )
+
             for key, value in filter.items():
                 if key not in self.READTABLE_FIELDS:
                     raise ValueError(f"Field {key} is not in Invoice table.")
                 statement = statement.where(getattr(Invoice, key) == value)
-            return session.scalars(statement).all()
+            return list(session.scalars(statement).all())
 
     def get_all(self, **filter) -> list[Invoice]:
         with self.session_factory() as session:
