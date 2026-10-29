@@ -10,7 +10,8 @@ class InvoiceRepository:
     READTABLE_FIELDS = {
         "id",
         "invoice_date",
-        "amount"
+        "amount",
+        "user_id"
     }
 
     def __init__(self, session_factory: sessionmaker):
@@ -18,7 +19,7 @@ class InvoiceRepository:
 
     def create_invoice(self, invoice_date: str, user_id: int) -> Invoice:
         with self.session_factory() as session:
-            invoice = Invoice(invoice_date = invoice_date, user_id = user_id)
+            invoice = Invoice(invoice_date = invoice_date, user_id = user_id, amount = 0)
             session.add(invoice)
             session.commit()
             return invoice
@@ -48,7 +49,15 @@ class InvoiceRepository:
 
     def get_by_id(self, invoice_id: int) -> Invoice | None:
         with self.session_factory() as session:
-            return session.get(Invoice, invoice_id)
+            statement = (
+                select(Invoice)
+                .options(
+                    selectinload(Invoice.items)
+                    .selectinload(InvoiceItem.product)
+                )
+                .where(Invoice.id == invoice_id)
+            )
+            return session.scalar(statement)
 
     def get_by_user_id(self, user_id: int, **filter) -> list[Invoice]:
         with self.session_factory() as session:
@@ -69,9 +78,15 @@ class InvoiceRepository:
 
     def get_all(self, **filter) -> list[Invoice]:
         with self.session_factory() as session:
-            statement = select(Invoice)
+            statement = (
+                select(Invoice)
+                .options(
+                    selectinload(Invoice.items)
+                    .selectinload(InvoiceItem.product)
+                )
+                )
             for key, value in filter.items():
                 if key not in self.READTABLE_FIELDS:
                     raise ValueError(f"Field {key} is not in Invoice table.")
                 statement = statement.where(getattr(Invoice, key) == value)
-            return session.scalars(statement).all()
+            return list(session.scalars(statement).all())

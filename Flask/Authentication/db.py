@@ -77,9 +77,9 @@ class DB_Manager:
         invo_repo = InvoiceRepository(SessionLocal)
         return invo_repo.get_by_user_id(user_id)
 
-    def insert_invoice_detail(self, invoice_id: int, product_id: int, quantity: int):
+    def insert_invoice_detail(self, invoice_id: int, items: list[dict]):
         detail_repo = InvoiceDetailRepository(SessionLocal)
-        return detail_repo.create(invoice_id,product_id,quantity)
+        return detail_repo.create(invoice_id,items)
 
     def update_invoice_detail(self, invoice_id: int, item:int):
         detail_repo = InvoiceDetailRepository(SessionLocal)

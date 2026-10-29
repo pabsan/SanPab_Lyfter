@@ -39,6 +39,8 @@ class Invoice(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     invoice_date: Mapped[DateTime] = mapped_column(DateTime)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    amount: Mapped[float] = mapped_column(Numeric(10, 2), default=0, nullable=False)
+    
     items: Mapped[list["InvoiceItem"]] = relationship(
         back_populates="invoice", cascade="all, delete-orphan"
     )
@@ -69,8 +71,8 @@ class InvoiceItem(Base):
             return 0.00
 
     def __repr__(self) -> str:
-        return f""" Id (id={self.id!r}),
+        return f""" Id={self.id},
         Invoice ID = {self.invoice_id},
         Product ID = {self.product_id},
         Quantity = {self.quantity},
-        Subtotal = {self.calculate_subtotal})"""
+        Subtotal = {self.calculate_subtotal}"""

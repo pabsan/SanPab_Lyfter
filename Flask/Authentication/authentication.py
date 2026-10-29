@@ -195,7 +195,7 @@ def get_invoices():
 
 @app.route("/invoice/<int:invoice_id>/items",methods=["POST"])
 def post_invoice_detail(invoice_id):
-    if not request.is_json():
+    if not request.is_json:
         return Response("Request must be in Json format", status=400)
     data = request.get_json()
     if not data:
@@ -220,7 +220,8 @@ def post_invoice_detail(invoice_id):
                 "id": item.id,
                 "invoice_id": item.invoice_id,
                 "product_id": item.product_id,
-                "quantity": item.quantity
+                "quantity": item.quantity,
+                "subtotal": item.calculate_subtotal
             } for item in result])
         else:
             return Response("Invoice not found", status=404)

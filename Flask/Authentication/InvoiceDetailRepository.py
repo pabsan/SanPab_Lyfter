@@ -15,28 +15,18 @@ class InvoiceDetailRepository:
 
     def valid_invoice(self, invoice_id) -> bool:
         with self.session_factory() as session:
-            invoice_repo = InvoiceRepository(session)
-            get_invoice = invoice_repo.get_by_id (invoice_id)
-            if get_invoice:
-                return True
-            else:
-                return False
+            return session.get(Invoice, invoice_id) is not None
 
     def valid_product(self, product_id = int) -> bool:
-        with self.session_factory() as sesssion:
-            product_repo = ProductRepository(sesssion)
-            get_product = product_repo(product_id)
-            if get_product:
-                return True
-            else:
-                return False
+        with self.session_factory() as session:
+            return session.get(Product, product_id) is not None
 
     def get_quantities(self, invoice_id: int, items:list[dict]):
         quantities = {}
         for item in items:
             if "product_id" not in item or "quantity" not in item:
                 raise ValueError("Each item must have a product id and quantity")
-            product_id = item["product_id "]
+            product_id = item["product_id"]
             quantity = item["quantity"]
 
             if not self.valid_product(product_id):
@@ -48,6 +38,10 @@ class InvoiceDetailRepository:
             quantities[product_id] = quantities.get(product_id, 0) + quantity
         return quantities
 
+    def _recalculate_amount(self, invoice: Invoice) -> None:
+        invoice.amount = sum(
+            item.calculate_subtotal for item in invoice.items
+        )
 
     def create(self, invoice_id: int, items: list[dict]) -> list[InvoiceItem] | None:
         with self.session_factory() as session:
@@ -55,11 +49,14 @@ class InvoiceDetailRepository:
                 quantities = self.get_quantities(invoice_id,items)
                 invoice_items = []
                 for product_id, quantity in quantities.items():
-                    invoice_item = InvoiceItem(invoice_id, product_id, quantity)
+                    invoice_item = InvoiceItem(invoice_id=invoice_id, 
+                                               product_id=product_id, 
+                                               quantity=quantity)
                     session.add(invoice_item)
                     invoice_items.append(invoice_item)
 
                 session.commit()
+                self._recalculate_amount(session.get(Invoice, invoice_id))
                 return invoice_items
             else:
                 return None
@@ -84,6 +81,7 @@ class InvoiceDetailRepository:
 
                 setattr(item, key,value)
 
+            self._recalculate_amount(session.get(Invoice, invoice_id))
             session.commit()
             session.refresh(item)
 
@@ -108,6 +106,7 @@ class InvoiceDetailRepository:
                 )
 
             session.flush()
+            self._recalculate_amount(invoice)
             session.commit()
 
             statement = (select(Invoice)
