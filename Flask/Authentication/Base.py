@@ -45,14 +45,14 @@ class Invoice(Base):
         back_populates="invoice", cascade="all, delete-orphan"
     )
 
-    @property
-    def total_amount(self) -> float:
-        return sum(item.calculate_subtotal for item in self.items)
+   ## @property
+   ## def total_amount(self) -> float:
+   ##     return sum(item.calculate_subtotal for item in self.items)
 
     def __repr__(self) -> str:
         return f""" Invoice (id={self.id!r}),
         Invoice Date = {self.invoice_date},
-        Amount = {self.total_amount}"""
+        Amount = {self.amount}"""
 
 class InvoiceItem(Base):
     __tablename__ = "invoice_items"

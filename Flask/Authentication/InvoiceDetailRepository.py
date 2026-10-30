@@ -55,8 +55,8 @@ class InvoiceDetailRepository:
                     session.add(invoice_item)
                     invoice_items.append(invoice_item)
 
-                session.commit()
                 self._recalculate_amount(session.get(Invoice, invoice_id))
+                session.commit()
                 return invoice_items
             else:
                 return None
@@ -88,34 +88,52 @@ class InvoiceDetailRepository:
             return item
 
 
-    def replace_items(self, invoice_id: int, items:list[dict]) -> Invoice:
+    def replace_items(self, invoice_id: int, items:list[dict]) -> list[InvoiceItem] | None:
         with self.session_factory() as session:
-            invoice = session.get(Invoice, invoice_id)
+            invoice = session.scalar(
+                select(Invoice)
+                .options(
+                    selectinload(Invoice.items)
+                    .selectinload(InvoiceItem.product)
+                )
+                .where(Invoice.id == invoice_id)
+            )
 
-            if not invoice:
-                raise ValueError("Invoice Not Found")
+            if invoice is None:
+                raise ValueError(f"Invoice {invoice_id} not found")
 
-            #validate and consolidate products
-            quantities = self.get_quantities(invoice_id, items)
+            quantities = self.get_quantities(session, items)
 
+            # Remove existing invoice lines.
             invoice.items.clear()
+            session.flush()
+
+            created_items = []
 
             for product_id, quantity in quantities.items():
-                invoice.items.append(
-                    InvoiceItem(product_id = product_id, quantity =quantity)
+                product = session.get(Product, product_id)
+
+                invoice_item = InvoiceItem(
+                    invoice=invoice,
+                    product=product,
+                    quantity=quantity
                 )
+                session.add(invoice_item)
+                created_items.append(invoice_item)
 
             session.flush()
             self._recalculate_amount(invoice)
             session.commit()
 
-            statement = (select(Invoice)
-                         .options(
-                             selectinload(Invoice.items)
-                             .selectinload(InvoiceItem.product)
-                         )
-                         .where(Invoice.id == invoice_id)
-                         )
-            return session.scalar(statement)
+            result = [{
+                "invoice_id": item.invoice_id,
+                "product_id": item.product_id,
+                "product_name": item.product.name,
+                "quantity": item.quantity,
+                "subtotal": item.calculate_subtotal
+                }
+                for item in created_items
+                ]
+            return result
                     
 

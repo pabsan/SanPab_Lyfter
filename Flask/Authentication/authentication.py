@@ -169,23 +169,31 @@ def get_invoices():
     )
     if user_type == "admin":
         result = db_manager.get_all_invoices(**data)
-        return jsonify([{
-            "id": invoice.id,
-            "invoice_date": invoice.invoice_date,
-            "amount": invoice.total_amount,
-            "user":invoice.user_id
-        } for invoice in result])
+        print(result)
+        print("admin")
+        print(len(result))
+        if result is not None and len(result) > 0:
+            return jsonify([{
+                "id": invoice.id,
+                "invoice_date": invoice.invoice_date,
+                "amount": invoice.amount,
+                "user":invoice.user_id
+            } for invoice in result])
+        else:
+            return Response("No Invoices found",status=400)
     else:
         user_id = autorization.get_user_bytoken(
             request.headers.get("Authorization")
         )
         if user_id is not None:
             result = db_manager.get_invoice_by_userId(user_id)
-            if result is not None:
+            print(result)
+            print(len(result))
+            if result is not None and len(result) > 0:
                 return jsonify([{
                     "id": invoice.id,
                     "invoice_date": invoice.invoice_date,
-                    "total": invoice.total_amount,
+                    "total": invoice.amount,
                     "user":user_id
                 } for invoice in result])
             else:
@@ -216,15 +224,51 @@ def post_invoice_detail(invoice_id):
                 return Response("Unauthorized", status=403)
         result = db_manager.insert_invoice_detail(invoice_id,items)
         if result is not None:
-            return jsonify([{
-                "id": item.id,
-                "invoice_id": item.invoice_id,
-                "product_id": item.product_id,
-                "quantity": item.quantity,
-                "subtotal": item.calculate_subtotal
-            } for item in result])
+            return jsonify(result)
         else:
             return Response("Invoice not found", status=404)
+
+@app.route("/invoice/<int:invoice_id>/items",methods=["PUT"])
+def replace_items(invoice_id: int):
+    if not request.is_json:
+        return Response("Request must be in Json format", status=400)
+    data = request.get_json()
+    if not data:
+        return Response("Invalid Json data",status=400)
+    items = data.get('items')
+    if not items:
+        return Response("Missing items from invoice",status=400)
+    else:
+        user_type = autorization.get_user_type(
+                    request.headers.get("Authorization")
+                )
+        existing_invoice = db_manager.get_invoice_by_id(invoice_id)
+        if user_type != "admin":
+            user_id = autorization.get_user_bytoken(
+                request.headers.get("Authorization")
+                )
+            if user_id is None or not existing_invoice.user_id == user_id:
+                return Response("Unauthorized", status=403)
+        result = db_manager.replace_invoice_detail(invoice_id,items)
+        if result is not None:
+            return jsonify(result)
+        else:
+            return Response("Invoice not found", status=404)
+        
+@app.route("/invoice/<int:invoice_id>",methods=["DELETE"])
+def delete_invoice(invoice_id):
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+        )
+    if user_type == "admin":
+        result = db_manager.delete_invoice(invoice_id)
+        if result == True:
+            return jsonify(invoice_id)
+        else:
+            return Response("Invoice not found", status=400)
+    else:
+        return Response("No authorized",status=404)
+    
     
 
     
