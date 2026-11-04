@@ -63,14 +63,19 @@ class InvoiceDetailRepository:
 
     def update(self, invoice_id: int, item_id: int, **kargs) -> Invoice | None:
         with self.session_factory() as session:
-            item = session.get(InvoiceItem, invoice_id, item_id)
+            item = session.scalar(
+                select(InvoiceItem).where(
+                    InvoiceItem.id == item_id,
+                    InvoiceItem.invoice_id == invoice_id,
+                )
+            )
 
             if not item:
                 raise ValueError("Item not found")
 
             for key, value in kargs.items():
-                if key is not self.UPDATABLE_FIELDS:
-                    raise ValueError("Fiel {key} is not updatable")
+                if key not in self.UPDATABLE_FIELDS:
+                    raise ValueError(f"Field {key} is not updatable")
 
                 if key == "quantity":
                     if not isinstance(value, int) or value <= 0:
@@ -85,7 +90,15 @@ class InvoiceDetailRepository:
             session.commit()
             session.refresh(item)
 
-            return item
+            result = {
+                "invoice_id": item.invoice_id,
+                "product_id": item.product_id,
+                "product_name": item.product.name,
+                "quantity": item.quantity,
+                "subtotal": item.calculate_subtotal
+            }
+
+            return result
 
 
     def replace_items(self, invoice_id: int, items:list[dict]) -> list[InvoiceItem] | None:
@@ -136,4 +149,3 @@ class InvoiceDetailRepository:
                 ]
             return result
                     
-

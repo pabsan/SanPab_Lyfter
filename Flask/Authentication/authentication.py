@@ -255,8 +255,8 @@ def replace_items(invoice_id: int):
         else:
             return Response("Invoice not found", status=404)
 
-@app.route("/invoice/items",methods=["PATCH"])
-def update_invoice_item():
+@app.route("/invoice/<int:invoice_id>/items/<int:item_id>",methods=["PATCH"])
+def update_invoice_item(invoice_id: int, item_id: int):
     if not request.is_json:
             return Response("Request must be in Json format", status=400)
     data = request.get_json()
@@ -265,8 +265,6 @@ def update_invoice_item():
     user_type = autorization.get_user_type(
                         request.headers.get("Authorization")
                     )
-    invoice_id = data.get("invoice_id")
-    item_id = data.get("item_id")
 
     if (invoice_id is not None and invoice_id != '') and (item_id is not None and item_id != ''):
         existing_invoice = db_manager.get_invoice_by_id(invoice_id)
@@ -283,14 +281,9 @@ def update_invoice_item():
         if (product_id is None or product_id == '') and (quantity is None or quantity == ''):
             return Response("Missing required data", status=400)
         else:
-            result = db_manager.update_invoice_item(invoice_id, item_id, **data)
+            result = db_manager.update_invoice_detail(invoice_id, item_id, **data)
             if result is not None:
-                return jsonify({
-                    "invoice_id": result.invoice_id,
-                    "product_id": result.product_id,
-                    "quantity": result.quantity,
-                    "subtotal": result.calculate_subtotal
-                })
+                return jsonify(result)
     else:
         return Response("Missing required data", status=400)
 

@@ -15,3 +15,8 @@ env/
 
 # VS Code
 .vscode/
+
+# RSA keys
+private.pem
+public.pem
+*.pem
