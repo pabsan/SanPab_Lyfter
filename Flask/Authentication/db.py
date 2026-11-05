@@ -1,47 +1,95 @@
 from sqlalchemy import create_engine
-from sqlalchemy import MetaData
-from sqlalchemy import Table, Column, Integer, String
-from sqlalchemy import insert, select
-
-metadata_obj = MetaData()
-
-user_table = Table(
-    "users",
-    metadata_obj,
-    Column("id", Integer, primary_key=True),
-    Column("username",String(30)),
-    Column("password",String)
-)
+from sqlalchemy import Integer, String, Numeric, DateTime
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import sessionmaker
+from Base import Base
+from UserRepository import UserRepository
+from ProductRepository import ProductRepository
+from InvoiceRepository import InvoiceRepository
+from InvoiceDetailRepository import InvoiceDetailRepository
+from setup import SessionLocal
 
 class DB_Manager:
     def __init__(self):
-        self.engine = create_engine("postgresql://postgres:postgres@localhost:5432/postgres")
-        metadata_obj.create_all(self.engine)
+        DB_URI = 'postgresql://postgres:postgres@localhost:5432/postgres'
+        engine = create_engine(DB_URI, echo=True)
+        try:
+            # Create the tables
+            Base.metadata.create_all(engine)
 
-    def insert_user(self, username, password):
-        qry = insert(user_table).returning(user_table.c.id).values(username=username,password=password)
-        with self.engine.connect() as conn:
-            result = conn.execute(qry)
-            conn.commit()
-        return result.all()[0]
+            self.SessionLocal = sessionmaker(
+                bind=engine,
+                expire_on_commit=False
+            )
 
-    def get_user(self, username,password):
-        qry = select(user_table).where(user_table.c.username == username).where(user_table.c.password == password)
-        with self.engine.connect() as conn:
-            result = conn.execute(qry)
-            users = result.all()
+        except Exception as e:
+            print("Setup failed:", e)
 
-            if len(users) == 0:
-                return None
-            else:
-                return users[0]
+    def insert_user(self, username: str, password: str, user_type: str):
+       user_repo = UserRepository(SessionLocal)
+       return user_repo.create(username,password, user_type)
 
-    def get_user_by_id(self, id):
-        qry = select(user_table).where(user_table.c.id == id)
-        with self.engine.connect() as conn:
-            result = conn.execute(qry)
-            users = result.all()
-            if len(users) == 0:
-                return None
-            else:
-                return users[0]
+    def get_user(self, username: str, password:str):
+        user_repo = UserRepository(SessionLocal)
+        return user_repo.get_credentials(username,password)
+
+    def get_user_by_id(self, user_id: int):
+        user_repo = UserRepository(SessionLocal)
+        return user_repo.get_by_id(user_id)
+
+    def insert_product(self, name: str, price: float, entry_date: DateTime, quantity: Integer):
+        product_repo = ProductRepository(SessionLocal)
+        return product_repo.create(name, price, entry_date, quantity)
+
+    def update_product(self, product_id: int, **kwargs):
+        product_repo = ProductRepository(SessionLocal)
+        return product_repo.update(product_id,**kwargs)
+
+    def delete_product(self, product_id: int):
+        product_repo = ProductRepository(SessionLocal)
+        return product_repo.delete(product_id)
+
+    def get_all_products(self, **filters):
+        product_repo = ProductRepository(SessionLocal)
+        return product_repo.get_all(**filters)
+
+    def insert_invoice(self, invoice_date: str, user_id: int):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.create_invoice(invoice_date, user_id)
+
+    def update_invoice(self, invoice_id: int, **kwargs):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.update(invoice_id,**kwargs)
+
+    def delete_invoice(self, invoice_id: int):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.delete(invoice_id)
+
+    def get_invoice_by_id(self, invoice_id: int):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.get_by_id(invoice_id)
+
+    def get_all_invoices(self, **filters):
+        invoice_repo = InvoiceRepository(SessionLocal)
+        return invoice_repo.get_all(**filters)
+
+    def get_invoice_by_userId(self, user_id: int):
+        invo_repo = InvoiceRepository(SessionLocal)
+        return invo_repo.get_by_user_id(user_id)
+
+    def insert_invoice_detail(self, invoice_id: int, items: list[dict]):
+        detail_repo = InvoiceDetailRepository(SessionLocal)
+        return detail_repo.create(invoice_id,items)
+
+    def update_invoice_detail(self, invoice_id: int, item:int, **kargs):
+        detail_repo = InvoiceDetailRepository(SessionLocal)
+        return detail_repo.update(invoice_id,item,**kargs)
+
+    def replace_invoice_detail(self, invoice_id: int, items:list[dict]):
+        detail_repo = InvoiceDetailRepository(SessionLocal)
+        return detail_repo.replace_items(invoice_id,items)
+
+    def get_invoice_detail(self, invoice_id: int):
+        detail_repo = InvoiceDetailRepository(SessionLocal)
+        return detail_repo.get_by_invoice_id(invoice_id)
+    

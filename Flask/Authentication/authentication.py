@@ -1,6 +1,7 @@
 from db import DB_Manager
 from JWT_Manager import JWT_Manager
 from flask import Flask, request, Response, jsonify
+from autorization import autorization
 
 app = Flask(__name__)
 
@@ -16,8 +17,8 @@ def register():
     if (data.get('username') == None or data.get('password') == None):
         return Response(status=400)
     else:
-        result = db_manager.insert_user(data.get('username'),data.get('password'))
-        user_id = result[0]
+        result = db_manager.insert_user(data.get('username'),data.get('password'), data.get('user_type'))
+        user_id = result.id
 
         token = jwt_manager.encode({'id':user_id})
         return jsonify(token=token)
@@ -28,12 +29,13 @@ def login():
     if (data.get('username') == None or data.get('password') == None):
         return Response(status=400)
     else:
-        result = db_manager.get_user(data.get('username'),data.get('password'))
-        if result == None:
+        user_id = db_manager.get_user(data.get('username'),data.get('password'))
+        if user_id == None:
             return Response(status=403)
         else:
-            user_id = result[0]
             token = jwt_manager.encode({'id':user_id})
+            if token is None:
+                return Response("Token generation failed", status=500)
             return jsonify(token=token)
 
 @app.route("/me")
@@ -45,13 +47,290 @@ def me():
             decoded = jwt_manager.decode(token)
             user_id = decoded['id']
             user = db_manager.get_user_by_id(user_id)
-            return jsonify(id=user_id, username = user[1])
+            return jsonify(id=user_id, username = user.username, user_type = user.user_type)
         else:
             return Response(status=403)
     except Exception as e:
         return Response(status=500)
 
+
+@app.route("/product", methods=["POST"])
+def post_product():
+    if not request.is_json:
+        return Response("Request must be in JSON format", status=400)
+    data = request.get_json()
+    if data is None:
+        return Response("Invalid JSON", status=400)
+    if (data.get('name') == None or data.get('price') == None 
+        or data.get('entry_date') == None or data.get('quantity') == None):
+        return Response("Missing required fields", status=400)
+    else:
+        user_type = autorization.get_user_type(
+            request.headers.get("Authorization")
+            )
+
+        if user_type == "admin":
+            result = db_manager.insert_product(data.get('name'),
+                                      data.get('price'),
+                                      data.get('entry_date'),
+                                      data.get('quantity')
+                                      )
+            product_id = result.id
+            return jsonify(id=product_id)
+        else:
+            return Response("Unauthorized", status=403)
+
+
+@app.route("/product/<int:product_id>",methods=["PUT"])
+def update_product(product_id):
+    if not request.is_json:
+        return Response("Request must be in Json format",status=400)
+    data = request.get_json()
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+        )
+    if data is None:
+        return Response("Invalid Json",status=400)
+
+    if user_type == "admin":
+        result = db_manager.update_product(product_id,**data)
+        if result:
+            return jsonify(id=product_id)
+        else:
+            return Response("Product not found",status=404)
+    else:
+        return Response("Unauthorized", status=403)
+
+@app.route("/product/<int:product_id>",methods=["DELETE"])
+def delete_product(product_id):
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+    )
+    if user_type == "admin":
+        result = db_manager.delete_product(product_id)
+        if result:
+            return jsonify(id=product_id)
+        else:
+            return Response("Product not found",status=404)
+    else:
+        return Response("Unauthorized", status=403)
+
+@app.route("/product",methods=["GET"])
+def get_products():
+    if not request.is_json:
+        return Response("Request must be in Json format",status=400)
+    data = request.get_json()
+    if data is None:
+        return Response("Invalid Json",status=400)
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+    )
+    if user_type == "admin":
+        result = db_manager.get_all_products(**data)
+        return jsonify([{
+            "id": product.id,
+            "name": product.name,
+            "price": product.price,
+            "entry_date": product.entry_date,
+            "quantity": product.quantity
+        } for product in result])
+    else:
+        return Response("Unauthorized", status=403)
+
+@app.route("/invoice",methods=["POST"])
+def post_invoice():
+    if not request.is_json:
+        return Response("Request must be JSON format.", status=400)
+    data = request.get_json()
+    if not data:
+        return Response("JSON format is wrong",status=400)
+    if data.get('invoice_date') == None or data.get('invoice_date') == "":
+        return Response("Missing required data", status=400)
+    else:
+        user_id = autorization.get_user_bytoken(
+            request.headers.get("Authorization")
+        )
+        if user_id is not None:
+            result = db_manager.insert_invoice(data.get('invoice_date'),user_id)
+            invoice_id = result.id
+            return jsonify(id=invoice_id)
+        else:
+            return Response("Unauthorized", status=403)
+
+
+@app.route("/invoice",methods=["GET"])
+def get_invoices():
+    if not request.is_json:
+        return Response("Request must be JSON format.",status=400)
+    data = request.get_json()
+    if not data:
+        return Response("Missing required data.",status=400)
+    
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+    )
+    if user_type == "admin":
+        result = db_manager.get_all_invoices(**data)
+        print(result)
+        print("admin")
+        print(len(result))
+        if result is not None and len(result) > 0:
+            return jsonify([{
+                "id": invoice.id,
+                "invoice_date": invoice.invoice_date,
+                "amount": invoice.amount,
+                "user":invoice.user_id
+            } for invoice in result])
+        else:
+            return Response("No Invoices found",status=400)
+    else:
+        user_id = autorization.get_user_bytoken(
+            request.headers.get("Authorization")
+        )
+        if user_id is not None:
+            result = db_manager.get_invoice_by_userId(user_id)
+            print(result)
+            print(len(result))
+            if result is not None and len(result) > 0:
+                return jsonify([{
+                    "id": invoice.id,
+                    "invoice_date": invoice.invoice_date,
+                    "total": invoice.amount,
+                    "user":user_id
+                } for invoice in result])
+            else:
+                return Response(f"No Invoices for this user id {user_id}",status=400)
+        else:
+            return Response("Unauthorized", status=403)
+
+@app.route("/invoice/<int:invoice_id>/items",methods=["POST"])
+def post_invoice_detail(invoice_id):
+    if not request.is_json:
+        return Response("Request must be in Json format", status=400)
+    data = request.get_json()
+    if not data:
+        return Response("Invalid Json format", status=400)
+    items = data.get('items')
+    if items is None:
+        return Response("Missing required data", status=400)
+    else:
+        user_type = autorization.get_user_type(
+            request.headers.get("Authorization")
+        )
+        existing_invoice = db_manager.get_invoice_by_id(invoice_id)
+        if user_type != "admin":
+            user_id = autorization.get_user_bytoken(
+                request.headers.get("Authorization")
+            )
+            if user_id is None or not existing_invoice.user_id == user_id:
+                return Response("Unauthorized", status=403)
+        result = db_manager.insert_invoice_detail(invoice_id,items)
+        if result is not None:
+            return jsonify(result)
+        else:
+            return Response("Invoice not found", status=404)
+
+@app.route("/invoice/<int:invoice_id>/items",methods=["PUT"])
+def replace_items(invoice_id: int):
+    if not request.is_json:
+        return Response("Request must be in Json format", status=400)
+    data = request.get_json()
+    if not data:
+        return Response("Invalid Json data",status=400)
+    items = data.get('items')
+    if not items:
+        return Response("Missing items from invoice",status=400)
+    else:
+        user_type = autorization.get_user_type(
+                    request.headers.get("Authorization")
+                )
+        existing_invoice = db_manager.get_invoice_by_id(invoice_id)
+        if user_type != "admin":
+            user_id = autorization.get_user_bytoken(
+                request.headers.get("Authorization")
+                )
+            if user_id is None or not existing_invoice.user_id == user_id:
+                return Response("Unauthorized", status=403)
+        result = db_manager.replace_invoice_detail(invoice_id,items)
+        if result is not None:
+            return jsonify(result)
+        else:
+            return Response("Invoice not found", status=404)
+
+@app.route("/invoice/<int:invoice_id>/items/<int:item_id>",methods=["PATCH"])
+def update_invoice_item(invoice_id: int, item_id: int):
+    if not request.is_json:
+            return Response("Request must be in Json format", status=400)
+    data = request.get_json()
+    if not data:
+        return Response("Invalid Json data",status=400)
+    user_type = autorization.get_user_type(
+                        request.headers.get("Authorization")
+                    )
+
+    if (invoice_id is not None and invoice_id != '') and (item_id is not None and item_id != ''):
+        existing_invoice = db_manager.get_invoice_by_id(invoice_id)
+        if user_type != "admin":
+            user_id = autorization.get_user_bytoken(
+                request.headers.get("Authorization")
+                )
+            if user_id is None or not existing_invoice.user_id == user_id:
+                return Response("Unauthorized", status=403)
+
+        product_id = data.get("product_id")
+        quantity = data.get("quantity")
+        print(f"product_id: {product_id}, quantity: {quantity}")
+        if (product_id is None or product_id == '') and (quantity is None or quantity == ''):
+            return Response("Missing required data", status=400)
+        else:
+            result = db_manager.update_invoice_detail(invoice_id, item_id, **data)
+            if result is not None:
+                return jsonify(result)
+    else:
+        return Response("Missing required data", status=400)
+
+        
+@app.route("/invoice/<int:invoice_id>",methods=["DELETE"])
+def delete_invoice(invoice_id):
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+        )
+    if user_type == "admin":
+        result = db_manager.delete_invoice(invoice_id)
+        if result == True:
+            return jsonify(invoice_id)
+        else:
+            return Response("Invoice not found", status=400)
+    else:
+        return Response("No authorized",status=404)
+
+
+@app.route("/invoice/<int:invoice_id>/items",methods=["GET"])
+def get_invoice_items(invoice_id):
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+        )
+    existing_invoice = db_manager.get_invoice_by_id(invoice_id)
+    if user_type != "admin":
+        user_id = autorization.get_user_bytoken(
+            request.headers.get("Authorization")
+            )
+        if user_id is None or not existing_invoice.user_id == user_id:
+            return Response("Unauthorized", status=403)
+    result = db_manager.get_invoice_detail(invoice_id)
+    if result is not None and len(result) > 0:
+        return jsonify(result)
+    else:
+        return Response("Invoice not found", status=404)
+    
+    
+
+    
+
+
+
 if __name__ == "__main__":
     db_manager = DB_Manager()
-    jwt_manager = JWT_Manager('trespatitos','HS256')
+    jwt_manager = JWT_Manager("private.pem","public.pem")
+    autorization = autorization(jwt_manager,db_manager)
     app.run(host="localhost",debug=True)

@@ -1,0 +1,84 @@
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
+from Base import User
+import hashlib
+import os
+import hmac
+
+
+class UserRepository:
+    UPDATABLE_FIELDS = {
+        "username",
+        "password",
+        "user_type"
+    }
+
+    def __init__(self, session_factory : sessionmaker):
+        self.session_factory = session_factory
+
+
+    def create(self, username: str, password: str, user_type: str = "user") -> User:
+        hashed_password = hashlib.md5(password.encode()).hexdigest()
+        with self.session_factory() as session:
+            if user_type not in ["user", "admin"]:
+                raise ValueError(f"Invalid user_type: {user_type}. Must be 'user' or 'admin'.")
+            user = User(username = username, password=hashed_password, user_type=user_type)
+            session.add(user)
+            session.commit()
+            return user
+
+    def update(self, user_id: int, **kwargs) -> User:
+        with self.session_factory() as session:
+            user = session.get(User, user_id)
+            if not user:
+                raise ValueError(f"User Id with {user_id} does not exists")
+
+            for key, value in kwargs.items():
+                if key not in self.UPDATABLE_FIELDS:
+                    raise ValueError(f"Field '{key}' is not updatable.")
+                if key == "password":
+                    value = hashlib.md5(value.encode()).hexdigest()
+                setattr(user, key, value)
+
+            session.commit()
+            session.refresh(user)
+            return user
+
+    def delete(self, user_id: int) -> bool:
+        with self.session_factory() as session:
+            user = session.get(User, user_id)
+            if not user:
+                return False
+
+            session.delete(user)
+            session.commit()
+            return True
+
+    def get_by_id(self, user_id : int) -> User | None:
+        with self.session_factory() as session:
+            return session.get(User, user_id)
+
+    def get_all(self, **filters) -> list[User]:
+        with self.session_factory() as session:
+            statement = select(User)
+
+            for key, value in filters.items():
+                if key not in self.UPDATABLE_FIELDS:
+                    raise ValueError(f"User does not have attribute {key}")
+                statement = statement.where(getattr(User,key) == value)
+
+            return session.scalar(statement).all()
+
+    def get_id_by_username(self, username: str) -> int | None:
+        with self.session_factory() as session:
+            statement = select(User.id).where(User.username == username)
+            return session.scalar(statement)
+
+    def get_credentials(self, username: str, password: str) -> int | None:
+        hashed_password = hashlib.md5(password.encode()).hexdigest()
+        with self.session_factory() as session:
+            statement = select(User.id).where(User.username == username, User.password == hashed_password)
+            result = session.scalar(statement)
+            return result
+
+            

@@ -7,7 +7,7 @@ from CarRepository import CarRepository
 from AddressRepository import AddressRepository
 
 
-DB_URI = 'postgresql://postgres:postgres@localhost:5432/postgres'
+DB_URI = 'postgresql://postgres:admin123@localhost:5432/postgres'
 
 engine = create_engine(DB_URI, echo=True)
 
