@@ -34,6 +34,8 @@ def login():
             return Response(status=403)
         else:
             token = jwt_manager.encode({'id':user_id})
+            if token is None:
+                return Response("Token generation failed", status=500)
             return jsonify(token=token)
 
 @app.route("/me")
@@ -301,6 +303,25 @@ def delete_invoice(invoice_id):
             return Response("Invoice not found", status=400)
     else:
         return Response("No authorized",status=404)
+
+
+@app.route("/invoice/<int:invoice_id>/items",methods=["GET"])
+def get_invoice_items(invoice_id):
+    user_type = autorization.get_user_type(
+        request.headers.get("Authorization")
+        )
+    existing_invoice = db_manager.get_invoice_by_id(invoice_id)
+    if user_type != "admin":
+        user_id = autorization.get_user_bytoken(
+            request.headers.get("Authorization")
+            )
+        if user_id is None or not existing_invoice.user_id == user_id:
+            return Response("Unauthorized", status=403)
+    result = db_manager.get_invoice_detail(invoice_id)
+    if result is not None and len(result) > 0:
+        return jsonify(result)
+    else:
+        return Response("Invoice not found", status=404)
     
     
 
@@ -310,6 +331,6 @@ def delete_invoice(invoice_id):
 
 if __name__ == "__main__":
     db_manager = DB_Manager()
-    jwt_manager = JWT_Manager('trespatitos','HS256')
+    jwt_manager = JWT_Manager("private.pem","public.pem")
     autorization = autorization(jwt_manager,db_manager)
     app.run(host="localhost",debug=True)

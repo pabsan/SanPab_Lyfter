@@ -89,4 +89,7 @@ class DB_Manager:
         detail_repo = InvoiceDetailRepository(SessionLocal)
         return detail_repo.replace_items(invoice_id,items)
 
+    def get_invoice_detail(self, invoice_id: int):
+        detail_repo = InvoiceDetailRepository(SessionLocal)
+        return detail_repo.get_by_invoice_id(invoice_id)
     

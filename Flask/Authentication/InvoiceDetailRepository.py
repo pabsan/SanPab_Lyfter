@@ -148,4 +148,25 @@ class InvoiceDetailRepository:
                 for item in created_items
                 ]
             return result
+
+    def get_by_invoice_id(self, invoice_id: int) -> list[InvoiceItem] | None:
+        with self.session_factory() as session:
+            statement = (
+                select(InvoiceItem)
+                .options(
+                    selectinload(InvoiceItem.product)
+                )
+                .where(InvoiceItem.invoice_id == invoice_id)
+            )
+            result = session.scalars(statement).all()
+            if not result:
+                raise ValueError(f"No items found for invoice {invoice_id}")
+            list_of_items = [{
+                "invoice_id": item.invoice_id,
+                "product_id": item.product_id,
+                "product_name": item.product.name,
+                "quantity": item.quantity,
+                "subtotal": item.calculate_subtotal
+            } for item in result]
+            return list_of_items
                     
