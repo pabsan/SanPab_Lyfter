@@ -14,12 +14,17 @@ def liveness():
 @app.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
-    if (data.get('username') == None or data.get('password') == None):
-        return Response(status=400)
+    data_user_type = data.get('user_type')
+    if (data.get('username') == None or data.get('password') == None) or data_user_type == None or data_user_type not in ["admin", "user"]:
+        return Response("Please provide valid username, password, and user_type (admin or user)", status=400)
     else:
-        result = db_manager.insert_user(data.get('username'),data.get('password'), data.get('user_type'))
-        user_id = result.id
-
+        user_type =  autorization.get_user_type(request.headers.get("Authorization"))
+        if (data_user_type == "admin" and user_type == "admin") or (data_user_type == "user"):
+            result = db_manager.insert_user(data.get('username'),data.get('password'), data.get('user_type'))
+            user_id = result.id
+        else:
+            return Response("Only admins can create admin accounts. Also, users can only create user accounts.",status=403)
+            
         token = jwt_manager.encode({'id':user_id})
         return jsonify(token=token)
 
