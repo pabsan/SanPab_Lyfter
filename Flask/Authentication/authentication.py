@@ -36,7 +36,7 @@ def login():
     else:
         user_id = db_manager.get_user(data.get('username'),data.get('password'))
         if user_id == None:
-            return Response(status=403)
+            return Response("Invalid credentials", status=401)
         else:
             token = jwt_manager.encode({'id':user_id})
             if token is None:
@@ -54,7 +54,7 @@ def me():
             user = db_manager.get_user_by_id(user_id)
             return jsonify(id=user_id, username = user.username, user_type = user.user_type)
         else:
-            return Response(status=403)
+            return Response("Unauthorized", status=401)
     except Exception as e:
         return Response(status=500)
 
@@ -83,7 +83,7 @@ def post_product():
             product_id = result.id
             return jsonify(id=product_id)
         else:
-            return Response("Unauthorized", status=403)
+            return Response("Unauthorized", status=401)
 
 
 @app.route("/product/<int:product_id>",methods=["PUT"])
@@ -104,7 +104,7 @@ def update_product(product_id):
         else:
             return Response("Product not found",status=404)
     else:
-        return Response("Unauthorized", status=403)
+        return Response("Unauthorized", status=401)
 
 @app.route("/product/<int:product_id>",methods=["DELETE"])
 def delete_product(product_id):
@@ -118,7 +118,7 @@ def delete_product(product_id):
         else:
             return Response("Product not found",status=404)
     else:
-        return Response("Unauthorized", status=403)
+        return Response("Unauthorized", status=401)
 
 @app.route("/product",methods=["GET"])
 def get_products():
@@ -140,7 +140,7 @@ def get_products():
             "quantity": product.quantity
         } for product in result])
     else:
-        return Response("Unauthorized", status=403)
+        return Response("Unauthorized", status=401)
 
 @app.route("/invoice",methods=["POST"])
 def post_invoice():
@@ -187,7 +187,7 @@ def get_invoices():
                 "user":invoice.user_id
             } for invoice in result])
         else:
-            return Response("No Invoices found",status=400)
+            return Response("No Invoices found",status=404)
     else:
         user_id = autorization.get_user_bytoken(
             request.headers.get("Authorization")
@@ -305,9 +305,9 @@ def delete_invoice(invoice_id):
         if result == True:
             return jsonify(invoice_id)
         else:
-            return Response("Invoice not found", status=400)
+            return Response("Invoice not found", status=404)
     else:
-        return Response("No authorized",status=404)
+        return Response("No authorized",status=401)
 
 
 @app.route("/invoice/<int:invoice_id>/items",methods=["GET"])
