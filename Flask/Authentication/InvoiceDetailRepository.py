@@ -21,6 +21,14 @@ class InvoiceDetailRepository:
         with self.session_factory() as session:
             return session.get(Product, product_id) is not None
 
+    def get_existence(self, product_id = int) -> int:
+        with self.session_factory() as session:
+            product=  session.get(Product, product_id)
+            if product is not None:
+                return product.quantity
+            else:
+                return -1
+
     def get_quantities(self, invoice_id: int, items:list[dict]):
         quantities = {}
         for item in items:
@@ -35,13 +43,23 @@ class InvoiceDetailRepository:
             if not isinstance(quantity, int) or quantity <= 0:
                 raise ValueError("Quantity must be a positive integer")
 
-            quantities[product_id] = quantities.get(product_id, 0) + quantity
+            existing_quantity = self.get_existence(product_id)
+            if existing_quantity != -1:
+                if existing_quantity < quantity:
+                    raise ValueError(f"Cannot sell this product {product_id}, there not enougth existence. There are {existing_quantity}.")
+                else:
+                    quantities[product_id] = quantities.get(product_id, 0) + quantity
+            else:
+                raise ValueError(f"Invalid product id")
         return quantities
 
     def _recalculate_amount(self, invoice: Invoice) -> None:
         invoice.amount = sum(
             item.calculate_subtotal for item in invoice.items
         )
+
+    def _recalculate_inventory(self, product: Product, quantity: int ) -> None:
+        product.quantity = product.quantity - quantity
 
     def create(self, invoice_id: int, items: list[dict]) -> list[InvoiceItem] | None:
         with self.session_factory() as session:
@@ -54,10 +72,16 @@ class InvoiceDetailRepository:
                                                quantity=quantity)
                     session.add(invoice_item)
                     invoice_items.append(invoice_item)
+                    self._recalculate_inventory(session.get(Product, product_id),quantity)
 
                 self._recalculate_amount(session.get(Invoice, invoice_id))
                 session.commit()
-                return invoice_items
+                result = [{
+                    "invoice_id": invoice_item.invoice_id,
+                    "product_id": invoice_item.product_id,
+                    "quantity": invoice_item.quantity
+                } for invoice_item in invoice_items]
+                return result
             else:
                 return None
 

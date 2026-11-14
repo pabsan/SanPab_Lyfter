@@ -1,5 +1,5 @@
-from JWT_Manager import JWT_Manager
-from db import DB_Manager
+from JWT_Manager import JWTManager
+from db import DBManager
 
 class autorization:
     def __init__(self, jwt_manager, db_manager):

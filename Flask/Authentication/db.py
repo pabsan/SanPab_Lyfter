@@ -9,7 +9,7 @@ from InvoiceRepository import InvoiceRepository
 from InvoiceDetailRepository import InvoiceDetailRepository
 from setup import SessionLocal
 
-class DB_Manager:
+class DBManager:
     def __init__(self):
         DB_URI = 'postgresql://postgres:postgres@localhost:5432/postgres'
         engine = create_engine(DB_URI, echo=True)
@@ -73,7 +73,7 @@ class DB_Manager:
         invoice_repo = InvoiceRepository(SessionLocal)
         return invoice_repo.get_all(**filters)
 
-    def get_invoice_by_userId(self, user_id: int):
+    def get_invoice_by_user_id(self, user_id: int):
         invo_repo = InvoiceRepository(SessionLocal)
         return invo_repo.get_by_user_id(user_id)
 

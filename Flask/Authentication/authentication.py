@@ -1,5 +1,5 @@
-from db import DB_Manager
-from JWT_Manager import JWT_Manager
+from db import DBManager
+from JWT_Manager import JWTManager
 from flask import Flask, request, Response, jsonify
 from autorization import autorization
 
@@ -14,12 +14,17 @@ def liveness():
 @app.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
-    if (data.get('username') == None or data.get('password') == None):
-        return Response(status=400)
+    data_user_type = data.get('user_type')
+    if (data.get('username') == None or data.get('password') == None) or data_user_type == None or data_user_type not in ["admin", "user"]:
+        return Response("Please provide valid username, password, and user_type (admin or user)", status=400)
     else:
-        result = db_manager.insert_user(data.get('username'),data.get('password'), data.get('user_type'))
-        user_id = result.id
-
+        user_type =  autorization.get_user_type(request.headers.get("Authorization"))
+        if (data_user_type == "admin" and user_type == "admin") or (data_user_type == "user"):
+            result = db_manager.insert_user(data.get('username'),data.get('password'), data.get('user_type'))
+            user_id = result.id
+        else:
+            return Response("Only admins can create admin accounts. Also, users can only create user accounts.",status=403)
+            
         token = jwt_manager.encode({'id':user_id})
         return jsonify(token=token)
 
@@ -31,7 +36,7 @@ def login():
     else:
         user_id = db_manager.get_user(data.get('username'),data.get('password'))
         if user_id == None:
-            return Response(status=403)
+            return Response("Invalid credentials", status=401)
         else:
             token = jwt_manager.encode({'id':user_id})
             if token is None:
@@ -49,7 +54,7 @@ def me():
             user = db_manager.get_user_by_id(user_id)
             return jsonify(id=user_id, username = user.username, user_type = user.user_type)
         else:
-            return Response(status=403)
+            return Response("Unauthorized", status=401)
     except Exception as e:
         return Response(status=500)
 
@@ -78,7 +83,7 @@ def post_product():
             product_id = result.id
             return jsonify(id=product_id)
         else:
-            return Response("Unauthorized", status=403)
+            return Response("Unauthorized", status=401)
 
 
 @app.route("/product/<int:product_id>",methods=["PUT"])
@@ -99,7 +104,7 @@ def update_product(product_id):
         else:
             return Response("Product not found",status=404)
     else:
-        return Response("Unauthorized", status=403)
+        return Response("Unauthorized", status=401)
 
 @app.route("/product/<int:product_id>",methods=["DELETE"])
 def delete_product(product_id):
@@ -113,20 +118,21 @@ def delete_product(product_id):
         else:
             return Response("Product not found",status=404)
     else:
-        return Response("Unauthorized", status=403)
+        return Response("Unauthorized", status=401)
 
 @app.route("/product",methods=["GET"])
 def get_products():
-    if not request.is_json:
-        return Response("Request must be in Json format",status=400)
-    data = request.get_json()
-    if data is None:
-        return Response("Invalid Json",status=400)
+    data = None
+    if request.is_json:
+        data = request.get_json()
     user_type = autorization.get_user_type(
         request.headers.get("Authorization")
     )
     if user_type == "admin":
-        result = db_manager.get_all_products(**data)
+        if data is not None and len(data) > 0:
+            result = db_manager.get_all_products(**data)
+        else:
+            result = db_manager.get_all_products()
         return jsonify([{
             "id": product.id,
             "name": product.name,
@@ -135,7 +141,7 @@ def get_products():
             "quantity": product.quantity
         } for product in result])
     else:
-        return Response("Unauthorized", status=403)
+        return Response("Unauthorized", status=401)
 
 @app.route("/invoice",methods=["POST"])
 def post_invoice():
@@ -160,17 +166,17 @@ def post_invoice():
 
 @app.route("/invoice",methods=["GET"])
 def get_invoices():
-    if not request.is_json:
-        return Response("Request must be JSON format.",status=400)
-    data = request.get_json()
-    if not data:
-        return Response("Missing required data.",status=400)
-    
+    data = None
+    if request.is_json:
+        data = request.get_json()
     user_type = autorization.get_user_type(
         request.headers.get("Authorization")
     )
     if user_type == "admin":
-        result = db_manager.get_all_invoices(**data)
+        if data is not None and len(data) > 0:
+            result = db_manager.get_all_invoices(**data)
+        else:
+            result = db_manager.get_all_invoices()
         print(result)
         print("admin")
         print(len(result))
@@ -182,13 +188,13 @@ def get_invoices():
                 "user":invoice.user_id
             } for invoice in result])
         else:
-            return Response("No Invoices found",status=400)
+            return Response("No Invoices found",status=404)
     else:
         user_id = autorization.get_user_bytoken(
             request.headers.get("Authorization")
         )
         if user_id is not None:
-            result = db_manager.get_invoice_by_userId(user_id)
+            result = db_manager.get_invoice_by_user_id(user_id)
             print(result)
             print(len(result))
             if result is not None and len(result) > 0:
@@ -300,9 +306,9 @@ def delete_invoice(invoice_id):
         if result == True:
             return jsonify(invoice_id)
         else:
-            return Response("Invoice not found", status=400)
+            return Response("Invoice not found", status=404)
     else:
-        return Response("No authorized",status=404)
+        return Response("No authorized",status=401)
 
 
 @app.route("/invoice/<int:invoice_id>/items",methods=["GET"])
@@ -330,7 +336,7 @@ def get_invoice_items(invoice_id):
 
 
 if __name__ == "__main__":
-    db_manager = DB_Manager()
-    jwt_manager = JWT_Manager("private.pem","public.pem")
+    db_manager = DBManager()
+    jwt_manager = JWTManager("private.pem","public.pem")
     autorization = autorization(jwt_manager,db_manager)
     app.run(host="localhost",debug=True)
