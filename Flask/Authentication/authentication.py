@@ -1,5 +1,5 @@
-from db import DB_Manager
-from JWT_Manager import JWT_Manager
+from db import DBManager
+from JWT_Manager import JWTManager
 from flask import Flask, request, Response, jsonify
 from autorization import autorization
 
@@ -122,16 +122,17 @@ def delete_product(product_id):
 
 @app.route("/product",methods=["GET"])
 def get_products():
-    if not request.is_json:
-        return Response("Request must be in Json format",status=400)
-    data = request.get_json()
-    if data is None:
-        return Response("Invalid Json",status=400)
+    data = None
+    if request.is_json:
+        data = request.get_json()
     user_type = autorization.get_user_type(
         request.headers.get("Authorization")
     )
     if user_type == "admin":
-        result = db_manager.get_all_products(**data)
+        if data is not None and len(data) > 0:
+            result = db_manager.get_all_products(**data)
+        else:
+            result = db_manager.get_all_products()
         return jsonify([{
             "id": product.id,
             "name": product.name,
@@ -165,17 +166,17 @@ def post_invoice():
 
 @app.route("/invoice",methods=["GET"])
 def get_invoices():
-    if not request.is_json:
-        return Response("Request must be JSON format.",status=400)
-    data = request.get_json()
-    if not data:
-        return Response("Missing required data.",status=400)
-    
+    data = None
+    if request.is_json:
+        data = request.get_json()
     user_type = autorization.get_user_type(
         request.headers.get("Authorization")
     )
     if user_type == "admin":
-        result = db_manager.get_all_invoices(**data)
+        if data is not None and len(data) > 0:
+            result = db_manager.get_all_invoices(**data)
+        else:
+            result = db_manager.get_all_invoices()
         print(result)
         print("admin")
         print(len(result))
@@ -193,7 +194,7 @@ def get_invoices():
             request.headers.get("Authorization")
         )
         if user_id is not None:
-            result = db_manager.get_invoice_by_userId(user_id)
+            result = db_manager.get_invoice_by_user_id(user_id)
             print(result)
             print(len(result))
             if result is not None and len(result) > 0:
@@ -335,7 +336,7 @@ def get_invoice_items(invoice_id):
 
 
 if __name__ == "__main__":
-    db_manager = DB_Manager()
-    jwt_manager = JWT_Manager("private.pem","public.pem")
+    db_manager = DBManager()
+    jwt_manager = JWTManager("private.pem","public.pem")
     autorization = autorization(jwt_manager,db_manager)
     app.run(host="localhost",debug=True)
