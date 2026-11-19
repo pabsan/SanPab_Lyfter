@@ -1,7 +1,7 @@
 from JWT_Manager import JWTManager
 from db import DBManager
 
-class autorization:
+class Autorization:
     def __init__(self, jwt_manager, db_manager):
         self.jwt_manager = jwt_manager
         self.db_manager = db_manager

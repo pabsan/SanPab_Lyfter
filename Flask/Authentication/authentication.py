@@ -1,7 +1,7 @@
 from db import DBManager
 from JWT_Manager import JWTManager
 from flask import Flask, request, Response, jsonify
-from autorization import autorization
+from autorization import Autorization
 
 app = Flask(__name__)
 
@@ -340,5 +340,5 @@ def get_invoice_items(invoice_id):
 if __name__ == "__main__":
     db_manager = DBManager()
     jwt_manager = JWTManager("private.pem","public.pem")
-    autorization = autorization(jwt_manager,db_manager)
+    autorization = Autorization(jwt_manager,db_manager)
     app.run(host="localhost",debug=True)
