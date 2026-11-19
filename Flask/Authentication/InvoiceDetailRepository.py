@@ -46,7 +46,7 @@ class InvoiceDetailRepository:
             existing_quantity = self.get_existence(product_id)
             if existing_quantity != -1:
                 if existing_quantity < quantity:
-                    raise ValueError(f"Cannot sell this product {product_id}, there not enougth existence. There are {existing_quantity}.")
+                    return(f"Insufficient stock")
                 else:
                     quantities[product_id] = quantities.get(product_id, 0) + quantity
             else:
@@ -58,13 +58,15 @@ class InvoiceDetailRepository:
             item.calculate_subtotal for item in invoice.items
         )
 
-    def _recalculate_inventory(self, product: Product, quantity: int ) -> None:
-        product.quantity = product.quantity - quantity
+    def _recalculate_inventory(self, product: Product, quantity: int, old_quantity: int = 0) -> None:
+        product.quantity = product.quantity - quantity + old_quantity
 
-    def create(self, invoice_id: int, items: list[dict]) -> list[InvoiceItem] | None:
+    def create(self, invoice_id: int, items: list[dict]) -> list[InvoiceItem] | None | str:
         with self.session_factory() as session:
             if self.valid_invoice(invoice_id):
                 quantities = self.get_quantities(invoice_id,items)
+                if isinstance(quantities, str):
+                    return quantities
                 invoice_items = []
                 for product_id, quantity in quantities.items():
                     invoice_item = InvoiceItem(invoice_id=invoice_id, 
@@ -85,7 +87,7 @@ class InvoiceDetailRepository:
             else:
                 return None
 
-    def update(self, invoice_id: int, item_id: int, **kargs) -> Invoice | None:
+    def update(self, invoice_id: int, item_id: int, **kargs) -> Invoice | None | str:
         with self.session_factory() as session:
             item = session.scalar(
                 select(InvoiceItem).where(
@@ -96,6 +98,8 @@ class InvoiceDetailRepository:
 
             if not item:
                 raise ValueError("Item not found")
+
+            old_quantity = item.quantity
 
             for key, value in kargs.items():
                 if key not in self.UPDATABLE_FIELDS:
@@ -110,7 +114,16 @@ class InvoiceDetailRepository:
 
                 setattr(item, key,value)
 
+            existing_quantity = self.get_existence(item.product_id)
+            if existing_quantity != -1:
+                if existing_quantity < item.quantity:
+                    return(f"Insufficient stock")
+            else:
+                raise ValueError(f"Invalid product id")
+
             self._recalculate_amount(session.get(Invoice, invoice_id))
+            self._recalculate_inventory(session.get(Product, item.product_id), item.quantity, old_quantity)
+            
             session.commit()
             session.refresh(item)
 
@@ -139,7 +152,16 @@ class InvoiceDetailRepository:
             if invoice is None:
                 raise ValueError(f"Invoice {invoice_id} not found")
 
+
+            old_quantities = {
+                item.product_id: item.quantity
+                for item in invoice.items
+                }
+
             quantities = self.get_quantities(session, items)
+
+            if isinstance(quantities, str):
+                return quantities
 
             # Remove existing invoice lines.
             invoice.items.clear()
@@ -150,6 +172,8 @@ class InvoiceDetailRepository:
             for product_id, quantity in quantities.items():
                 product = session.get(Product, product_id)
 
+                old_quantity = old_quantities.get(product_id, 0)
+
                 invoice_item = InvoiceItem(
                     invoice=invoice,
                     product=product,
@@ -157,11 +181,12 @@ class InvoiceDetailRepository:
                 )
                 session.add(invoice_item)
                 created_items.append(invoice_item)
+                self._recalculate_inventory(session.get(Product, product_id), quantity, old_quantity)
 
             session.flush()
             self._recalculate_amount(invoice)
+            
             session.commit()
-
             result = [{
                 "invoice_id": item.invoice_id,
                 "product_id": item.product_id,
