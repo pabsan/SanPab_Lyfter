@@ -1,6 +1,6 @@
 import jwt
 
-class JWT_Manager:
+class JWTManager:
     def __init__(self, private_key_path, public_key_path):
         with open(private_key_path, "r") as file:
             self.private_key = file.read()

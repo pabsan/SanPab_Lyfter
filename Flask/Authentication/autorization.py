@@ -1,12 +1,12 @@
-from JWT_Manager import JWT_Manager
-from db import DB_Manager
+from JWT_Manager import JWTManager
+from db import DBManager
 
-class autorization:
+class Autorization:
     def __init__(self, jwt_manager, db_manager):
         self.jwt_manager = jwt_manager
         self.db_manager = db_manager
 
-    def get_user_bytoken(self, token: str) -> int | None:
+    def get_user_by_token(self, token: str) -> int | None:
         try:
             print(f"======TOKEN==== {token}")
             if token is not None:
@@ -25,7 +25,7 @@ class autorization:
 
     def get_user_type(self, token: str) -> str | None:
         try:
-            user_id = self.get_user_bytoken(token)
+            user_id = self.get_user_by_token(token)
             print(f"======USER ID==== {user_id}")
             user = self.db_manager.get_user_by_id(user_id)
             if user:

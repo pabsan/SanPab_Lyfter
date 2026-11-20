@@ -25,7 +25,7 @@ class ProductRepository:
         with self.session_factory() as session:
             product = session.get(Product, product_id)
             if not product:
-                raise ValueError(f"Product ID with {product_id} id does not exists")
+                return None
             for key, value in kwargs.items():
                 if key not in self.UPDATABLE_FIELDS:
                     raise ValueError(f"Field '{key} is not updatable in Products table'")

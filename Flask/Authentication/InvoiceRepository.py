@@ -42,7 +42,7 @@ class InvoiceRepository:
         with self.session_factory() as session:
             invoice = session.get(Invoice, invoice_id)
             if not invoice:
-                raise ValueError(f"Invoice ID with {invoice_id} id does not exists.")
+                return False
             session.delete(invoice)
             session.commit()
             return True
